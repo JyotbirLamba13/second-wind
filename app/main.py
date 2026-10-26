@@ -41,7 +41,7 @@ def create_app(settings: Optional[Settings] = None) -> FastAPI:
         yield
 
     app = FastAPI(
-        title="Second Life API",
+        title="Second Wind API",
         version="0.1.0",
         description="Patent triage and lapsed-patent opportunity research for founders. Research only, never legal advice.",
         lifespan=lifespan,

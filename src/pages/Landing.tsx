@@ -42,7 +42,7 @@ export function Landing() {
             <div>
               <h1>See which patents stand in your way before you build.</h1>
               <p className="lede">
-                Second Life gives founders, inventors and the programs that back them a first-pass patent read in about a minute: how
+                Second Wind gives founders, inventors and the programs that back them a first-pass patent read in about a minute: how
                 novel an idea looks, which in-force patents could block it, and which expired ones are free to build on.
               </p>
               <div className="ctas">
@@ -54,7 +54,7 @@ export function Landing() {
                 </Link>
               </div>
               <p className="fine">
-                First-layer research only. Second Life does not give legal advice; it prepares you for the conversation with a registered
+                First-layer research only. Second Wind does not give legal advice; it prepares you for the conversation with a registered
                 patent attorney.
               </p>
             </div>
@@ -136,7 +136,7 @@ export function Landing() {
           <div className="wrap">
             <h2>Built for the people who back new products</h2>
             <p className="intro">
-              Most first-time founders meet patents too late, after the build or the raise. Second Life moves that first look to week one,
+              Most first-time founders meet patents too late, after the build or the raise. Second Wind moves that first look to week one,
               and gives advisors a consistent starting point.
             </p>
             <div className="audiences">
@@ -272,7 +272,7 @@ export function Landing() {
 
         <section className="section" id="limits">
           <div className="wrap">
-            <h2>What Second Life is not</h2>
+            <h2>What Second Wind is not</h2>
             <p className="intro">
               A first layer of research makes the attorney's time go further. It doesn't replace it.
             </p>

@@ -42,7 +42,7 @@ function AckGate({ onDone }: { onDone: () => void }) {
       <div className="modal">
         <h2 id="ack-title">Before you start</h2>
         <p className="muted" style={{ marginTop: 10 }}>
-          Second Life is a first layer of patent research. Please read this once.
+          Second Wind is a first layer of patent research. Please read this once.
         </p>
         <ul>
           <li>Results are automated first-pass research over a limited corpus, not a legal opinion on patentability, infringement or freedom to operate.</li>
@@ -52,7 +52,7 @@ function AckGate({ onDone }: { onDone: () => void }) {
         </ul>
         <label>
           <input type="checkbox" checked={ok} onChange={(e) => setOk(e.target.checked)} />
-          <span>I understand Second Life is not legal advice and I'll consult a patent attorney before relying on its results.</span>
+          <span>I understand Second Wind is not legal advice and I'll consult a patent attorney before relying on its results.</span>
         </label>
         <div style={{ display: "flex", gap: 10, justifyContent: "space-between", flexWrap: "wrap" }}>
           <Link to="/legal" className="btn ghost">

@@ -1,4 +1,6 @@
-# Second Life
+# Second Wind
+
+Built on the open [bistvinayak/second-life](https://github.com/bistvinayak/second-life) backend (originally named Second Life), which this repo merges in automatically.
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/bistvinayak/second-life)
 
@@ -18,7 +20,7 @@ It opens a chat. Describe a product idea and get a patent triage report, then as
 
 **API key:** the LLM features (idea understanding, mock data for other industries, chat follow-ups) need an OpenRouter key. Copy `.env.example` to `.env` and set `OPENROUTER_API_KEY` (free models only are used by default). On Render, add it as an environment variable. Without a key the app still runs, with weaker idea understanding and no mock data. The app limits each visitor to 12 checks per 10 minutes so a shared key is not drained.
 
-**Deploy a public link:** click the Render button above (free plan, Docker), or `docker build -t second-life . && docker run -p 8000:8000 second-life`. Free Render instances sleep when idle and lose saved reports on restart.
+**Deploy a public link:** click the Render button above (free plan, Docker), or `docker build -t second-wind . && docker run -p 8000:8000 second-wind`. Free Render instances sleep when idle and lose saved reports on restart.
 
 Real patent data is from Google Patents Public Data (https://console.cloud.google.com/marketplace/product/google_patents_public_datasets/google-patents-public-data), licensed CC BY 4.0, via BigQuery.
 
@@ -40,7 +42,7 @@ REST API for an AI patent research assistant for student and first-time founders
 
 Two modes share one retrieval core:
 
-- **Scout**: ranks lapsed and expired US consumer-hardware patents by second-life potential, with reasons.
+- **Scout**: ranks lapsed and expired US consumer-hardware patents by second-wind potential, with reasons.
 - **Check**: takes a founder's idea and returns a green/yellow/red novelty and blocking-patent triage, the closest prior art, the single riskiest assumption written as a two-week test, and a downloadable prior-art packet. Every statement carries a link to its source patent.
 
 ## UI
@@ -57,7 +59,7 @@ pytest -q
 python -m scripts.benchmark        # recall@k vs examiner-cited art
 ```
 
-Or `docker build -t second-life . && docker run -p 8000:8000 second-life`.
+Or `docker build -t second-wind . && docker run -p 8000:8000 second-wind`.
 
 Interactive docs and the OpenAPI schema (`/openapi.json`) are generated, so the UI team can build typed clients from them. CORS is open by default; restrict it with `CORS_ORIGINS`.
 

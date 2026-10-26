@@ -69,7 +69,7 @@ export function buildPacket(r: CheckReport): Document {
       spacing: { after: 80 },
       children: [new TextRun({ text: "Prior-art packet", color: INK })],
     }),
-    p([new TextRun({ text: `Second Life report ${r.id}, generated ${created}`, color: MUTED })], { after: 200 }),
+    p([new TextRun({ text: `Second Wind report ${r.id}, generated ${created}`, color: MUTED })], { after: 200 }),
     notice("First-pass research, not legal advice.", r.disclaimer, STAMP),
     ...(r.data_mode === "mock" ? [notice("Demo data.", r.data_note, LEVEL_COLOR.yellow)] : []),
 
@@ -150,7 +150,7 @@ export function buildPacket(r: CheckReport): Document {
       children: [
         new TextRun({
           text:
-            "Searched corpus: the patents indexed by Second Life only (live data: Google Patents Public Data, CC BY 4.0). " +
+            "Searched corpus: the patents indexed by Second Wind only (live data: Google Patents Public Data, CC BY 4.0). " +
             "Overlap compares words, not the legal scope of claims. Legal status is estimated from the 20-year term; maintenance fees were not checked.",
           size: 18,
           color: MUTED,
@@ -160,7 +160,7 @@ export function buildPacket(r: CheckReport): Document {
   ];
 
   return new Document({
-    creator: "Second Life",
+    creator: "Second Wind",
     title: `Prior-art packet ${r.id}`,
     description: "Automated first-pass patent research. Not legal advice.",
     styles: {
@@ -179,7 +179,7 @@ export async function downloadPacket(r: CheckReport) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `second-life-prior-art-${r.id}.docx`;
+  a.download = `second-wind-prior-art-${r.id}.docx`;
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }

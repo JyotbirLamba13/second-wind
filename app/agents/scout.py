@@ -1,4 +1,4 @@
-"""Scout mode: rank lapsed and expired patents by second-life potential."""
+"""Scout mode: rank lapsed and expired patents by second-wind potential."""
 from __future__ import annotations
 
 import math

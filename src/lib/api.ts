@@ -1,4 +1,4 @@
-// Typed client for the Second Life API. Types mirror app/schemas.py.
+// Typed client for the Second Wind API. Types mirror app/schemas.py.
 
 export type Level = "green" | "yellow" | "red";
 export type Status = "in_force" | "lapsed" | "expired";

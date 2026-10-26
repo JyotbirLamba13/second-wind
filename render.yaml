@@ -1,7 +1,7 @@
 # One-click deploy: https://render.com/deploy?repo=https://github.com/bistvinayak/second-life
 services:
   - type: web
-    name: second-life
+    name: second-wind
     runtime: docker
     plan: free
     healthCheckPath: /health

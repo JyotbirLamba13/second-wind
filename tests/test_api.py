@@ -109,7 +109,7 @@ def test_gibberish_query_returns_nothing(client):
 
 def test_ui_served(client):
     r = client.get("/ui/")
-    assert r.status_code == 200 and "Second Life" in r.text
+    assert r.status_code == 200 and "Second Wind" in r.text
     assert client.get("/", follow_redirects=False).headers["location"] == "/ui/"
 
 

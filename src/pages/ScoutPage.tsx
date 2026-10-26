@@ -45,7 +45,7 @@ export function ScoutPage() {
         <div>
           <h1>Opportunity scout</h1>
           <p>
-            Expired and lapsed patents are free for anyone to practice. Scout ranks them by second-life potential: proven interest, clear space
+            Expired and lapsed patents are free for anyone to practice. Scout ranks them by second-wind potential: proven interest, clear space
             and an active market.
           </p>
         </div>

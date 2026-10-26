@@ -62,7 +62,7 @@ class ScoutChanged(BaseModel):
 class Opportunity(BaseModel):
     rank: int
     patent: PatentSummary
-    score: float = Field(description="0-100 second-life potential")
+    score: float = Field(description="0-100 second-wind potential")
     components: dict[str, float]
     why_ranked: list[str]
     why_lapsed: str

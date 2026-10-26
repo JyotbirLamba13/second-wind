@@ -7,13 +7,18 @@ export const USPTO_CLINICS =
   "https://www.uspto.gov/learning-and-resources/ip-policy/public-information-about-practitioners/law-school-clinic-1";
 
 export function Mark({ size = 26 }: { size?: number }) {
-  // A claim bracket around a sprouting leaf: a patent given a second life.
+  // Claim brackets around three gusts of wind: a patent idea catching its second wind.
   return (
     <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
       <rect x="1" y="1" width="30" height="30" rx="6" fill="var(--ink)" />
-      <path d="M10 8H7v16h3M22 8h3v16h-3" stroke="var(--paper)" strokeWidth="2" fill="none" strokeLinecap="round" />
-      <path d="M16 23V14" stroke="var(--paper)" strokeWidth="2" strokeLinecap="round" />
-      <path d="M16 16c0-4 2.5-6 6-6 0 4-2.5 6-6 6zM16 18c0-3-2-4.5-4.5-4.5 0 3 2 4.5 4.5 4.5z" fill="var(--paper)" />
+      <path d="M9 8H6v16h3M23 8h3v16h-3" stroke="var(--paper)" strokeWidth="2" fill="none" strokeLinecap="round" />
+      <path
+        d="M10 13h8.5a2.5 2.5 0 1 0-2.5-2.5M10 17h11a2.5 2.5 0 1 1-2.5 2.5M10 21h5"
+        stroke="var(--paper)"
+        strokeWidth="1.8"
+        fill="none"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -22,7 +27,7 @@ export function Brand({ to = "/" }: { to?: string }) {
   return (
     <Link to={to} className="brand">
       <Mark />
-      Second Life
+      Second Wind
     </Link>
   );
 }
@@ -126,7 +131,7 @@ export function LegalNotice({ compact = false }: { compact?: boolean }) {
         <strong>First-pass research, not legal advice.</strong>{" "}
         {compact
           ? "Results cover only the indexed corpus. Consult a registered patent attorney before relying on them."
-          : "Second Life searches a limited patent corpus and scores word overlap with claims. It cannot tell you whether you can patent your idea or whether a product infringes. Before you file, launch or invest, have a registered patent attorney or agent review your situation."}{" "}
+          : "Second Wind searches a limited patent corpus and scores word overlap with claims. It cannot tell you whether you can patent your idea or whether a product infringes. Before you file, launch or invest, have a registered patent attorney or agent review your situation."}{" "}
         <Link to="/legal">What this means</Link>
       </div>
     </div>
