@@ -106,7 +106,7 @@ export function Landing() {
                   <li>Search with four ranking methods side by side</li>
                   <li>Browse by legal status and CPC class</li>
                   <li>Full claims, family and term dates</li>
-                  <li>Corpus profile and retrieval benchmark</li>
+                  <li>Corpus profile: what the data covers</li>
                 </ul>
                 <Link to="/app/research/search">Open research</Link>
               </div>
@@ -256,12 +256,12 @@ export function Landing() {
                 <p className="for">For IP clinics and tech transfer offices</p>
                 <ul>
                   <li>Corpora loaded for your CPC classes</li>
-                  <li>Retrieval benchmark on your own cases</li>
+                  <li>Search quality measured on your own cases (planned)</li>
                   <li>Attorney handoff workflow (planned)</li>
                   <li>Single sign-on (planned)</li>
                 </ul>
-                <Link to="/app/research/benchmark" className="btn ghost">
-                  See the benchmark
+                <Link to="/app/research/corpus" className="btn ghost">
+                  See the corpus profile
                 </Link>
               </div>
             </div>

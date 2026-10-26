@@ -2,7 +2,6 @@ import { StrictMode, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { AppShell } from "./components/AppShell";
-import { BenchmarkPage } from "./pages/BenchmarkPage";
 import { CheckPage } from "./pages/CheckPage";
 import { CorpusPage } from "./pages/CorpusPage";
 import { ExpiryPage } from "./pages/ExpiryPage";
@@ -39,7 +38,7 @@ createRoot(document.getElementById("root")!).render(
           <Route path="research/search" element={<SearchPage />} />
           <Route path="research/browse" element={<Navigate to="/app/research/search" replace />} />
           <Route path="research/corpus" element={<CorpusPage />} />
-          <Route path="research/benchmark" element={<BenchmarkPage />} />
+          <Route path="research/benchmark" element={<Navigate to="/app/research/search" replace />} />
           <Route path="reports" element={<ReportsPage />} />
           <Route path="patents/:id" element={<PatentPage />} />
         </Route>

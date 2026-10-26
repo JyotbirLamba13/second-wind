@@ -21,7 +21,6 @@ const NAV = [
   { group: "Research", items: [
     { to: "/app/research/search", label: "Patent search", icon: Icons.search },
     { to: "/app/research/corpus", label: "Corpus profile", icon: Icons.corpus },
-    { to: "/app/research/benchmark", label: "Retrieval benchmark", icon: Icons.bench },
   ] },
   { group: "Library", items: [{ to: "/app/reports", label: "Saved reports", icon: Icons.reports }] },
 ];
@@ -32,7 +31,6 @@ const TITLES: [string, string][] = [
   ["/app/scout", "Opportunity scout"],
   ["/app/research/search", "Patent search"],
   ["/app/research/corpus", "Corpus profile"],
-  ["/app/research/benchmark", "Retrieval benchmark"],
   ["/app/reports", "Saved reports"],
   ["/app/patents", "Patent record"],
 ];

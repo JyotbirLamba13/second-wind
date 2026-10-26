@@ -127,17 +127,6 @@ export interface Health {
   llm_enabled: boolean;
 }
 
-export interface BenchmarkResult {
-  applications: number;
-  corpus_size: number;
-  ks: number[];
-  results: Record<string, Record<string, number>>;
-  best_baseline: Record<string, string | number>;
-  hybrid_vs_best_baseline: number;
-  targets: Record<string, number>;
-  note: string;
-}
-
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
     super(message);
@@ -202,5 +191,4 @@ export const api = {
   chat: (messages: ChatMessage[], report: CheckReport | null) =>
     call<ChatResponse>("/v1/chat", post({ messages, report_id: report?.id ?? null, report })),
   packet: (report: CheckReport) => call<string>("/v1/packet", post(report), "text"),
-  benchmark: (ks: number[]) => call<BenchmarkResult>("/v1/benchmark/run", post({ ks })),
 };
