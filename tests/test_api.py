@@ -12,7 +12,7 @@ from app.patents import Patent, legal_status
 @pytest.fixture(scope="module")
 def client(tmp_path_factory):
     db = str(tmp_path_factory.mktemp("db") / "t.db")
-    s = Settings(db_path=db, anthropic_key="", openrouter_key="")  # tests never call an LLM
+    s = Settings(data_path="data/sample_patents.jsonl", db_path=db, anthropic_key="", openrouter_key="")  # tests never call an LLM
     with TestClient(create_app(s)) as c:
         yield c
 
@@ -105,3 +105,9 @@ def test_check_lay_wording_flags_in_force_blocker(client):
 
 def test_gibberish_query_returns_nothing(client):
     assert client.post("/v1/search", json={"query": "zzzz qqqq"}).json() == []
+
+
+def test_ui_served(client):
+    r = client.get("/ui/")
+    assert r.status_code == 200 and "Second Life" in r.text
+    assert client.get("/", follow_redirects=False).headers["location"] == "/ui/"

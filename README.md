@@ -7,6 +7,10 @@ Two modes share one retrieval core:
 - **Scout**: ranks lapsed and expired US consumer-hardware patents by second-life potential, with reasons.
 - **Check**: takes a founder's idea and returns a green/yellow/red novelty and blocking-patent triage, the closest prior art, the single riskiest assumption written as a two-week test, and a downloadable prior-art packet. Every statement carries a link to its source patent.
 
+## UI
+
+A no-build web UI lives in `ui/index.html` and is served by the backend, so one process gives you the whole app: run `uvicorn app.main:app` and open http://localhost:8000. It has a **Check my idea** tab (triage badge, how the AI read the idea, blockers, prior art, riskiest assumption, packet download) and a **Scout opportunities** tab. Everything calls the same `/v1/*` API, so the UI can be swapped for any framework without backend changes. If `data/patents.jsonl` exists the server uses it, otherwise it falls back to the synthetic sample.
+
 ## Quick start
 
 ```bash

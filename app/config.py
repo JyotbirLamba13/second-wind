@@ -17,7 +17,7 @@ _load_dotenv()
 
 @dataclass(frozen=True)
 class Settings:
-    data_path: str = field(default_factory=lambda: os.getenv("SECOND_LIFE_DATA", "data/sample_patents.jsonl"))
+    data_path: str = field(default_factory=lambda: os.getenv("SECOND_LIFE_DATA") or ("data/patents.jsonl" if Path("data/patents.jsonl").exists() else "data/sample_patents.jsonl"))
     db_path: str = field(default_factory=lambda: os.getenv("SECOND_LIFE_DB", "second_life.db"))
     model: str = field(default_factory=lambda: os.getenv("SECOND_LIFE_MODEL", "claude-sonnet-5-5"))
     anthropic_key: str = field(default_factory=lambda: os.getenv("ANTHROPIC_API_KEY", ""))

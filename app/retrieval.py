@@ -18,9 +18,9 @@ from .patents import Patent
 
 _TOKEN = re.compile(r"[a-z0-9]+")
 _STOP = set(
-    "a an and are as at be by for from has have in is it its of on or that the this to with which wherein "
+    "a an and are as at be by for from has have in is it its of on or that the this to with which wherein so where under below above small large between through "
     "said comprising comprises claim claims according method system apparatus device including includes "
-    "one two first second can may use used using into when each such than also not more".split()
+    "one two first second can may use used using into when each such than also not more being been were was their there these those other any all".split()
 )
 
 

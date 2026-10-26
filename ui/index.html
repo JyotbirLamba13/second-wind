@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Second Life</title>
+<style>
+:root{--bg:#fafaf7;--card:#fff;--ink:#1c1b19;--mute:#6b675f;--line:#e5e2da;--accent:#2f5d50;--green:#2e7d4f;--yellow:#b7791f;--red:#b83232;--chip:#f0eee7}
+@media (prefers-color-scheme:dark){:root{--bg:#161614;--card:#1f1e1b;--ink:#eeeae0;--mute:#9a958a;--line:#33312c;--accent:#7bb8a4;--green:#5bbf85;--yellow:#e0a84a;--red:#e56b6b;--chip:#2a2824}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:860px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:1.6rem;margin:0}h2{font-size:1.05rem;margin:28px 0 10px}
+.sub{color:var(--mute);margin:4px 0 0}
+.banner{margin-top:14px;padding:10px 14px;background:var(--chip);border-radius:10px;font-size:.88rem;color:var(--mute)}
+nav{display:flex;gap:8px;margin:22px 0 14px}
+nav button{padding:8px 16px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;font:inherit;cursor:pointer}
+nav button[aria-selected=true]{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:12px}
+textarea,input,select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit}
+textarea{min-height:110px;resize:vertical}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
+button.go{padding:10px 20px;border:0;border-radius:10px;background:var(--accent);color:var(--bg);font:inherit;font-weight:600;cursor:pointer}
+button.go:disabled{opacity:.5;cursor:wait}
+.chip{padding:5px 11px;border-radius:999px;background:var(--chip);font-size:.84rem;cursor:pointer;border:0;color:var(--ink);font-family:inherit}
+.badge{display:inline-block;padding:4px 14px;border-radius:999px;font-weight:700;letter-spacing:.04em;color:#fff}
+.green{background:var(--green)}.yellow{background:var(--yellow)}.red{background:var(--red)}
+.mute{color:var(--mute);font-size:.88rem}
+.pill{font-size:.75rem;padding:2px 9px;border-radius:999px;background:var(--chip);color:var(--mute);margin-left:6px;white-space:nowrap}
+.item{padding:10px 0;border-top:1px solid var(--line)}.item:first-child{border-top:0}
+a{color:var(--accent)}
+ul{margin:6px 0;padding-left:20px}
+.err{color:var(--red)}
+.disc{font-size:.82rem;color:var(--mute);margin-top:24px}
+.score{font-size:1.4rem;font-weight:700;color:var(--accent);min-width:56px}
+.opp{display:flex;gap:14px;align-items:flex-start}
+</style>
+</head>
+<body>
+<main>
+  <h1>Second Life</h1>
+  <p class="sub">Patent triage for founders: is your idea new, and does anything still block it?</p>
+  <div class="banner" id="banner">Loading corpus info…</div>
+
+  <nav role="tablist">
+    <button role="tab" aria-selected="true" data-tab="check">Check my idea</button>
+    <button role="tab" aria-selected="false" data-tab="scout">Scout opportunities</button>
+  </nav>
+
+  <section id="check">
+    <div class="card">
+      <label for="idea"><strong>Describe your product idea</strong></label>
+      <textarea id="idea" placeholder="e.g. A cold brew coffee maker where a small pump keeps cycling cold water through the grounds so it brews in under two hours"></textarea>
+      <div class="row">
+        <button class="go" id="run">Run check</button>
+        <label class="mute"><input type="checkbox" id="usellm" checked style="width:auto"> Use AI to understand my idea (slower, better)</label>
+      </div>
+      <div class="row" id="examples"></div>
+    </div>
+    <div id="status" class="mute"></div>
+    <div id="report"></div>
+  </section>
+
+  <section id="scout" hidden>
+    <div class="card">
+      <div class="row" style="margin-top:0">
+        <div style="flex:1;min-width:180px"><label class="mute">CPC prefix (optional)</label><input id="cpc" placeholder="e.g. A47J31"></div>
+        <div style="width:160px"><label class="mute">Show</label>
+          <select id="statuses"><option value="lapsed,expired">Lapsed + expired</option><option value="expired">Expired only</option><option value="lapsed">Lapsed only</option></select></div>
+        <div style="align-self:flex-end"><button class="go" id="scoutgo">Find opportunities</button></div>
+      </div>
+    </div>
+    <div id="scoutnote" class="mute"></div>
+    <div id="opps"></div>
+  </section>
+
+  <p class="disc">Automated research and triage, not a legal opinion on patentability or freedom to operate. Talk to a registered patent attorney before relying on it.</p>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+function el(tag,props={},...kids){const e=document.createElement(tag);
+  for(const[k,v]of Object.entries(props)){if(k==="class")e.className=v;else if(k==="text")e.textContent=v;else if(k.startsWith("on"))e[k]=v;else e.setAttribute(k,v)}
+  for(const c of kids.flat())if(c!=null)e.append(c.nodeType?c:document.createTextNode(c));return e}
+async function api(path,opts){const r=await fetch(path,opts);
+  if(!r.ok){let m=r.statusText;try{const j=await r.json();m=typeof j.detail==="string"?j.detail:JSON.stringify(j.detail)}catch{}throw new Error(m)}return r}
+const post=(p,b)=>api(p,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(b)}).then(r=>r.json());
+const statusText=s=>s.replace("_"," ");
+const pLink=p=>el("a",{href:p.url,target:"_blank",rel:"noopener",text:p.id});
+
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("nav button").forEach(x=>x.setAttribute("aria-selected",x===b));
+  $("check").hidden=b.dataset.tab!=="check";$("scout").hidden=b.dataset.tab!=="scout"});
+
+let stats=null;
+api("/v1/stats").then(r=>r.json()).then(async s=>{stats=s;
+  const h=await api("/health").then(r=>r.json());
+  const c=s.by_status;
+  $("banner").textContent=`${s.patents.toLocaleString()} US utility patents loaded (${c.in_force.toLocaleString()} in force, ${c.lapsed.toLocaleString()} lapsed, ${c.expired.toLocaleString()} expired). AI understanding ${h.llm_enabled?"on":"off"}.`+
+    (c.lapsed===0?" No maintenance-fee data, so patents count as in force unless past their 20-year term.":"");
+}).catch(()=>$("banner").textContent="Cannot reach the backend.");
+
+const EXAMPLES=["A cold brew coffee maker where a small pump keeps cycling cold water through the coffee grounds so it brews in under two hours",
+"A coffee machine that reads a barcode on the pod and adjusts water temperature and pressure automatically",
+"A portable battery powered milk frother that clips onto a mug and froths without heating"];
+EXAMPLES.forEach(t=>$("examples").append(el("button",{class:"chip",text:t.slice(0,48)+"…",title:t,onclick:()=>{$("idea").value=t}})));
+
+function section(title,...kids){return el("div",{class:"card"},el("strong",{text:title}),...kids)}
+function renderReport(r){
+  const out=$("report");out.replaceChildren();
+  out.append(el("div",{class:"card"},
+    el("span",{class:"badge "+r.triage,text:r.triage.toUpperCase()}),
+    el("span",{class:"pill",text:"novelty: "+r.novelty_level}),el("span",{class:"pill",text:"blocking: "+r.blocking_level}),
+    el("p",{text:r.summary}),
+    el("p",{class:"mute",text:`Run time ${(r.metrics.runtime_ms/1000).toFixed(1)}s`}),
+    el("a",{href:`/v1/reports/${r.id}/packet`,download:`prior-art-${r.id}.md`,text:"Download prior-art packet (Markdown)"})));
+  const u=r.understanding;
+  out.append(section("How we read your idea",
+    el("p",{text:u.summary}),
+    u.source==="llm"?el("ul",{},u.features.map(f=>el("li",{text:f}))):el("p",{class:"mute",text:"AI understanding was off or unavailable, so your wording was searched as written."})));
+  out.append(section("Findings",el("ul",{},r.claims.map(c=>el("li",{},c.text+" ",c.citations.map(x=>[el("a",{href:x.url,target:"_blank",rel:"noopener",text:`[${x.patent_id}, ${x.field}]`})," "]))))));
+  out.append(section("Possible blocking patents",
+    r.blockers.length?r.blockers.map(b=>el("div",{class:"item"},
+      pLink(b.patent)," ",b.patent.title,el("span",{class:"pill "+b.level,text:b.level}),el("span",{class:"pill",text:"coverage "+Math.round(b.claim_coverage*100)+"%"}),
+      el("div",{class:"mute",text:b.why}),
+      b.patent.fee_data?null:el("div",{class:"mute",text:"In force is assumed: no fee data loaded."}))):el("p",{class:"mute",text:"None above the threshold."})));
+  out.append(section("Closest prior art",
+    r.prior_art.map(a=>el("div",{class:"item"},pLink(a.patent)," ",a.patent.title,
+      el("span",{class:"pill",text:statusText(a.patent.status)}),el("span",{class:"pill",text:"overlap "+Math.round(a.claim_coverage*100)+"%"}),
+      el("div",{class:"mute",text:"Shared terms: "+a.matched_terms.join(", ")})))));
+  const ra=r.riskiest_assumption;
+  out.append(section("Riskiest assumption, as a two-week test",el("p",{},el("strong",{text:ra.assumption})),el("p",{text:ra.two_week_test}),
+    ra.citations.map(x=>el("a",{href:x.url,target:"_blank",rel:"noopener",text:x.patent_id}))));
+  out.append(el("div",{class:"card"},el("strong",{text:r.attorney_handoff?"Talk to a patent attorney":"Attorney handoff"}),el("p",{text:r.attorney_handoff_reason})));
+}
+$("run").onclick=async()=>{
+  const idea=$("idea").value.trim();
+  if(idea.length<20){$("status").className="err";$("status").textContent="Please describe the idea in at least a sentence.";return}
+  const btn=$("run");btn.disabled=true;$("report").replaceChildren();$("status").className="mute";
+  const t0=Date.now();const tick=setInterval(()=>$("status").textContent=`${$("usellm").checked?"Understanding your idea, searching patents, ":"Searching patents, "}ranking… ${Math.round((Date.now()-t0)/1000)}s`,500);
+  try{renderReport(await post("/v1/check",{idea,use_llm:$("usellm").checked}));$("status").textContent=""}
+  catch(e){$("status").className="err";$("status").textContent="Check failed: "+e.message}
+  finally{clearInterval(tick);btn.disabled=false}
+};
+$("scoutgo").onclick=async()=>{
+  const cpc=$("cpc").value.trim();const statuses=$("statuses").value.split(",");
+  $("opps").replaceChildren();$("scoutnote").textContent="Searching…";
+  try{
+    const list=await post("/v1/scout",{statuses,limit:20,...(cpc?{cpc_prefixes:[cpc]}:{})});
+    $("scoutnote").textContent=list.length?(stats&&stats.by_status.lapsed===0?"Showing expired patents only: no fee data is loaded, so lapsed ones can't be detected.":""):"No matching patents.";
+    list.forEach(o=>$("opps").append(el("div",{class:"card opp"},el("div",{class:"score",text:Math.round(o.score)}),
+      el("div",{},pLink(o.patent)," ",el("strong",{text:o.patent.title}),el("span",{class:"pill",text:statusText(o.patent.status)}),
+        el("div",{class:"mute",text:o.why_lapsed+` ${o.what_changed.newer_patents_in_class} newer patents in the class.`}),
+        el("ul",{},o.why_ranked.map(w=>el("li",{text:w}))),
+        o.what_changed.possible_blockers.length?el("div",{class:"mute",text:"Check first: "+o.what_changed.possible_blockers.map(b=>b.id).join(", ")}):null))));
+  }catch(e){$("scoutnote").className="err";$("scoutnote").textContent="Scout failed: "+e.message}
+};
+</script>
+</body>
+</html>

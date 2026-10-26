@@ -50,7 +50,7 @@ def run_check(req: CheckRequest, store: PatentStore, settings: Settings, llm: LL
         p = store.patents[h.id]
         summ = summarize(p, store.status[h.id])
         prior_art.append(PriorArtItem(
-            patent=summ, similarity=round(similarity, 3), claim_coverage=round(cov, 3), matched_terms=[idx.surface(t) for t in matched[:8]],
+            patent=summ, similarity=round(similarity, 3), claim_coverage=round(cov, 3), matched_terms=list(dict.fromkeys(idx.surface(t) for t in matched))[:8],
             why=f"Overlap {cov:.0%}: claim 1 shares {claim_cov:.0%} of its terms with the idea ({st.replace('_', ' ')})."))
         if st == "in_force":
             lvl = _level(cov, settings.blocking_yellow, settings.blocking_red)

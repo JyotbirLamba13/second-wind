@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Optional
 
 from fastapi import FastAPI, HTTPException, Query, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
 
 from .agents.check import run_check
 from .agents.common import summarize
@@ -18,6 +21,9 @@ from .schemas import (
     SearchRequest,
 )
 from .store import PatentStore, ReportDB
+
+
+UI_DIR = Path(__file__).resolve().parent.parent / "ui"
 
 
 def create_app(settings: Optional[Settings] = None) -> FastAPI:
@@ -124,6 +130,11 @@ def create_app(settings: Optional[Settings] = None) -> FastAPI:
             raise HTTPException(404, f"benchmark file not found: {path}")
         return run_benchmark(store().index, rows, sorted(set(req.ks)))
 
+    @app.get("/", include_in_schema=False)
+    def root():
+        return RedirectResponse("/ui/")
+
+    app.mount("/ui", StaticFiles(directory=UI_DIR, html=True), name="ui")
     return app
 
 
