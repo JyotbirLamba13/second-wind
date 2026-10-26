@@ -149,6 +149,7 @@ class ChatMessage(BaseModel):
 class ChatRequest(BaseModel):
     messages: list[ChatMessage] = Field(min_length=1, max_length=30)
     report_id: Optional[str] = Field(None, description="Report from the previous turn, for follow-up questions")
+    report: Optional[CheckReport] = Field(None, description="The previous report itself, for stateless hosts where report_id may not be stored")
 
 
 class ChatResponse(BaseModel):

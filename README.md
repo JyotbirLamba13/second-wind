@@ -22,6 +22,18 @@ It opens a chat. Describe a product idea and get a patent triage report, then as
 
 Real patent data is from Google Patents Public Data (https://console.cloud.google.com/marketplace/product/google_patents_public_datasets/google-patents-public-data), licensed CC BY 4.0, via BigQuery.
 
+## Web app (Vercel)
+
+`src/` holds a React + Vite frontend: a marketing site and a workspace with Idea check (chat + report), Opportunity scout, and a research mode (patent search with method comparison, corpus browser, patent records, corpus profile, retrieval benchmark) plus saved reports. Every screen states that results are research triage, not legal advice, and the workspace asks for an acknowledgement before first use.
+
+```bash
+npm install
+uvicorn app.main:app --port 8000   # API
+npm run dev                        # http://localhost:5173, proxies /api to :8000
+```
+
+On Vercel the same repo deploys both halves: `api/index.py` serves the FastAPI app as a Python function at `/api/*`, and the Vite build is served statically (`vercel.json`). Set `OPENROUTER_API_KEY` (or `ANTHROPIC_API_KEY`) in the Vercel project's environment variables. Serverless instances don't share disk, so the frontend keeps each report and sends it back with chat follow-ups (`report` in `/v1/chat`) and packet exports (`POST /v1/packet`). Saved reports live in the visitor's browser.
+
 ## Backend
 
 REST API for an AI patent research assistant for student and first-time founders. It does research and triage only. It never gives legal opinions and hands off to a registered patent attorney when risk is high.

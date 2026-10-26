@@ -85,6 +85,22 @@ def test_followup_question_is_answered_from_report(demo):
     assert r["action"] == "answer" and "SL-S007" in r["reply"] and r["report"] is None
 
 
+def test_followup_works_from_inline_report_when_store_is_empty(demo):
+    c, _ = demo
+    report = chat(c, IDEA)["report"]
+    report["id"] = "not-stored"  # as on a stateless host where another instance saved it
+    r = c.post("/v1/chat", json={"messages": [{"role": "user", "content": "why is that patent a problem?"}],
+                                 "report_id": "not-stored", "report": report}).json()
+    assert r["action"] == "answer" and r["report"] is None
+
+
+def test_packet_from_inline_report(demo):
+    c, _ = demo
+    report = chat(c, IDEA)["report"]
+    r = c.post("/v1/packet", json=report)
+    assert r.status_code == 200 and r.text.startswith(f"# Prior-art packet {report['id']}")
+
+
 def test_followup_design_change_reruns_check(demo):
     c, llm = demo
     first = chat(c, IDEA)

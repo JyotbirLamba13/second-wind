@@ -59,7 +59,8 @@ def create_app(settings: Optional[Settings] = None) -> FastAPI:
         counts = {"in_force": 0, "lapsed": 0, "expired": 0}
         for st in s.status.values():
             counts[st.status] += 1
-        return {"patents": len(s.patents), "by_status": counts, "as_of": s.today.isoformat()}
+        return {"patents": len(s.patents), "by_status": counts, "as_of": s.today.isoformat(),
+                "live_domain": settings.live_domain if s.live_subclasses else "", "live_subclasses": sorted(s.live_subclasses)}
 
     @app.get("/v1/patents", response_model=list[PatentSummary], tags=["patents"])
     def list_patents(
@@ -112,7 +113,9 @@ def create_app(settings: Optional[Settings] = None) -> FastAPI:
     def chat(req: ChatRequest):
         def load(rid: str):
             body = app.state.db.get(rid)
-            return CheckReport.model_validate(body) if body else None
+            if body:
+                return CheckReport.model_validate(body)
+            return req.report if req.report and req.report.id == rid else None
 
         return handle_chat(req, load, _run, app.state.llm)
 
@@ -133,6 +136,11 @@ def create_app(settings: Optional[Settings] = None) -> FastAPI:
     @app.get("/v1/reports/{report_id}/packet", tags=["check"], response_class=Response)
     def packet(report_id: str):
         return Response(packet_markdown(_load(report_id)), media_type="text/markdown")
+
+    @app.post("/v1/packet", tags=["check"], response_class=Response)
+    def packet_from_report(report: CheckReport):
+        """Same packet as /v1/reports/{id}/packet, built from a report the client already holds."""
+        return Response(packet_markdown(report), media_type="text/markdown")
 
     @app.post("/v1/benchmark/run", tags=["benchmark"])
     def benchmark(req: BenchmarkRequest):
