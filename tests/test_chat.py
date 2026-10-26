@@ -1,0 +1,102 @@
+import json
+
+import pytest
+from fastapi.testclient import TestClient
+
+from app import ratelimit
+from app.config import Settings
+from app.main import create_app
+
+IDEA = "A cold brew coffee system with an ultrasonic transducer exciting the grounds slurry in chilled water"
+BOTTLE = "A smart water bottle with a level sensor that tracks how much you drink and reminds you through an app"
+
+
+class FakeLLM:
+    """Scripted stand-in for the model, routed by which prompt it is given."""
+    enabled = True
+    input_tokens = output_tokens = 0
+    last_model = "fake"
+
+    def __init__(self):
+        self.chat_reply = {"action": "answer", "reply": "SL-S007 is in force until 2038."}
+        self.calls = []
+
+    def json_call(self, system, prompt, max_tokens=700):
+        self.calls.append(system[:30])
+        if "search patents" in system:  # idea understanding
+            bottle = "water bottle" in prompt
+            return {"summary": "A bottle that tracks water" if bottle else "A cold brew maker",
+                    "industry": "Smart bottles" if bottle else "Coffee makers", "in_dataset": not bottle,
+                    "features": ["sensor"], "search_terms": ["bottle sensor"] if bottle else ["cold brew", "ultrasonic"],
+                    "cpc_hints": ["A47G19"] if bottle else ["A47J31"]}
+        if "Invent realistic" in system:
+            return {"patents": [{"title": f"Smart hydration bottle {n}", "abstract": "Tracks intake.",
+                                 "claim1": "A water bottle comprising a level sensor, a processor tracking fluid intake, and a wireless transmitter to an app that reminds the user to drink",
+                                 "cpc": ["A47G19/22"], "filing_year": 2015 if n < 5 else 2002,
+                                 "status": "in_force" if n < 5 else "expired", "assignee": "HydroCo"} for n in range(1, 7)]}
+        if "talking to a first-time" in system:
+            return self.chat_reply
+        return None
+
+
+@pytest.fixture()
+def demo(tmp_path, monkeypatch):
+    monkeypatch.setenv("RATE_LIMIT_PER_10MIN", "0")
+    rows = [json.loads(l) for l in open("data/sample_patents.jsonl")]
+    path = tmp_path / "a47j.jsonl"
+    path.write_text("\n".join(json.dumps(r) for r in rows if any(c.startswith("A47J") for c in r["cpc"])) + "\n")
+    app = create_app(Settings(data_path=str(path), db_path=str(tmp_path / "t.db"), anthropic_key="", openrouter_key=""))
+    with TestClient(app) as c:
+        app.state.llm = FakeLLM()
+        yield c, app.state.llm
+
+
+def chat(c, text, rid=None, history=None):
+    msgs = (history or []) + [{"role": "user", "content": text}]
+    return c.post("/v1/chat", json={"messages": msgs, "report_id": rid}).json()
+
+
+def test_short_message_asks_for_idea(demo):
+    c, _ = demo
+    r = chat(c, "hi")
+    assert r["action"] == "ask" and r["report"] is None
+
+
+def test_idea_in_live_domain_uses_real_data(demo):
+    c, _ = demo
+    r = chat(c, IDEA)
+    assert r["action"] == "check" and r["report"]["data_mode"] == "live"
+    assert r["report"]["triage"] == "red" and "RED" in r["reply"]
+    assert r["report"]["blockers"][0]["patent"]["url"].startswith("https://patents.google.com/")
+
+
+def test_out_of_domain_idea_uses_flagged_mock_data(demo):
+    c, _ = demo
+    r = chat(c, BOTTLE)["report"]
+    assert r["data_mode"] == "mock" and "mock" in r["data_note"].lower()
+    ids = [a["patent"] for a in r["prior_art"]]
+    assert ids and all(p["mock"] and p["id"].startswith("MOCK-") and p["url"] == "" for p in ids)
+
+
+def test_followup_question_is_answered_from_report(demo):
+    c, llm = demo
+    first = chat(c, IDEA)
+    r = chat(c, "why is that patent a problem?", first["report"]["id"], [{"role": "user", "content": IDEA}])
+    assert r["action"] == "answer" and "SL-S007" in r["reply"] and r["report"] is None
+
+
+def test_followup_design_change_reruns_check(demo):
+    c, llm = demo
+    first = chat(c, IDEA)
+    llm.chat_reply = {"action": "recheck", "reply": "", "revised_idea": "A cold brew coffee system using a rotating paddle instead of ultrasound to agitate grounds in chilled water"}
+    r = chat(c, "what if I use a paddle instead of ultrasound?", first["report"]["id"])
+    assert r["action"] == "recheck" and r["report"]["id"] != first["report"]["id"]
+
+
+def test_rate_limit(demo, monkeypatch):
+    c, _ = demo
+    monkeypatch.setenv("RATE_LIMIT_PER_10MIN", "2")
+    ratelimit._hits.clear()
+    codes = [c.post("/v1/chat", json={"messages": [{"role": "user", "content": "hi"}]}).status_code for _ in range(3)]
+    assert codes == [200, 200, 429]
+    ratelimit._hits.clear()

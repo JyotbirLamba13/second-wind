@@ -1,0 +1,11 @@
+# One-click deploy: https://render.com/deploy?repo=https://github.com/bistvinayak/second-life
+services:
+  - type: web
+    name: second-life
+    runtime: docker
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: RATE_LIMIT_PER_10MIN
+        value: "12"
+      # The shared demo key ships in demo.env. To use your own, add OPENROUTER_API_KEY here as a secret.

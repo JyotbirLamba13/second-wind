@@ -13,11 +13,13 @@ def _load_dotenv(path: str = ".env") -> None:
 
 
 _load_dotenv()
+_load_dotenv("demo.env")  # shared demo key; a real .env or environment variable always wins
 
 
 @dataclass(frozen=True)
 class Settings:
-    data_path: str = field(default_factory=lambda: os.getenv("SECOND_LIFE_DATA") or ("data/patents.jsonl" if Path("data/patents.jsonl").exists() else "data/sample_patents.jsonl"))
+    data_path: str = field(default_factory=lambda: os.getenv("SECOND_LIFE_DATA") or next(
+            (f for f in ("data/patents.jsonl", "data/coffee_a47j31.jsonl.gz") if Path(f).exists()), "data/sample_patents.jsonl"))
     db_path: str = field(default_factory=lambda: os.getenv("SECOND_LIFE_DB", "second_life.db"))
     model: str = field(default_factory=lambda: os.getenv("SECOND_LIFE_MODEL", "claude-sonnet-5-5"))
     anthropic_key: str = field(default_factory=lambda: os.getenv("ANTHROPIC_API_KEY", ""))
@@ -36,6 +38,7 @@ class Settings:
     cors_origins: tuple = field(
         default_factory=lambda: tuple(o.strip() for o in os.getenv("CORS_ORIGINS", "*").split(",") if o.strip())
     )
+    live_domain: str = field(default_factory=lambda: os.getenv("LIVE_DOMAIN", "coffee and beverage making machines (CPC A47J31)"))
     # Triage thresholds on idf-weighted claim coverage (0..1). Starting assumptions; tune on the benchmark.
     blocking_red: float = 0.45
     blocking_yellow: float = 0.25

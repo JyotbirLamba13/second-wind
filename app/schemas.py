@@ -30,6 +30,7 @@ class PatentSummary(BaseModel):
     cited_by_count: int
     url: str
     synthetic: bool = False
+    mock: bool = False
 
 
 class SearchRequest(BaseModel):
@@ -73,6 +74,8 @@ class Understanding(BaseModel):
     summary: str
     features: list[str]
     search_terms: list[str]
+    industry: str = ""
+    in_dataset: bool = True
     cpc_hints: list[str]
     source: Literal["llm", "none"] = Field(description="'none' means the LLM was unavailable and the raw idea was used")
 
@@ -117,6 +120,8 @@ class CheckReport(BaseModel):
     created_at: str
     idea: str
     understanding: Understanding
+    data_mode: Literal["live", "mock"] = "live"
+    data_note: str = ""
     triage: Level
     novelty_level: Level
     blocking_level: Level
@@ -134,3 +139,19 @@ class CheckReport(BaseModel):
 class BenchmarkRequest(BaseModel):
     ks: list[int] = [10, 50]
     path: Optional[str] = None
+
+
+class ChatMessage(BaseModel):
+    role: Literal["user", "assistant"]
+    content: str = Field(max_length=4000)
+
+
+class ChatRequest(BaseModel):
+    messages: list[ChatMessage] = Field(min_length=1, max_length=30)
+    report_id: Optional[str] = Field(None, description="Report from the previous turn, for follow-up questions")
+
+
+class ChatResponse(BaseModel):
+    action: Literal["check", "answer", "recheck", "ask"]
+    reply: str
+    report: Optional[CheckReport] = None

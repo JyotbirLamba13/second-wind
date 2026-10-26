@@ -37,6 +37,7 @@ class Patent(BaseModel):
     maintenance: Optional[list[MaintenanceEvent]] = None
     url: Optional[str] = None
     synthetic: bool = False
+    mock: bool = False  # AI-generated for the demo; not a real patent
 
     @field_validator("claims")
     @classmethod
@@ -49,6 +50,8 @@ class Patent(BaseModel):
 
     @property
     def source_url(self) -> str:
+        if self.mock:
+            return ""
         return self.url or f"https://patents.google.com/patent/{self.id}"
 
     @property

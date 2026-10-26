@@ -4,20 +4,22 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException, Query, Response
+from fastapi import Depends, FastAPI, HTTPException, Query, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
+from .agents.chat import handle_chat
 from .agents.check import run_check
 from .agents.common import summarize
 from .agents.llm import LLM
 from .agents.scout import run_scout
 from .benchmark import load_benchmark, run_benchmark
 from .config import Settings, get_settings
+from .ratelimit import limit
 from .report import packet_markdown
 from .schemas import (
-    BenchmarkRequest, CheckReport, CheckRequest, Opportunity, PatentSummary, ScoutRequest, SearchHit,
+    BenchmarkRequest, ChatRequest, ChatResponse, CheckReport, CheckRequest, Opportunity, PatentSummary, ScoutRequest, SearchHit,
     SearchRequest,
 )
 from .store import PatentStore, ReportDB
@@ -97,11 +99,22 @@ def create_app(settings: Optional[Settings] = None) -> FastAPI:
     def scout(req: ScoutRequest):
         return run_scout(req, store(), settings)
 
-    @app.post("/v1/check", response_model=CheckReport, tags=["check"])
-    def check(req: CheckRequest):
+    def _run(req: CheckRequest) -> CheckReport:
         report = run_check(req, store(), settings, app.state.llm)
         app.state.db.save(report.id, "check", report.created_at, report.model_dump(mode="json"))
         return report
+
+    @app.post("/v1/check", response_model=CheckReport, tags=["check"], dependencies=[Depends(limit)])
+    def check(req: CheckRequest):
+        return _run(req)
+
+    @app.post("/v1/chat", response_model=ChatResponse, tags=["chat"], dependencies=[Depends(limit)])
+    def chat(req: ChatRequest):
+        def load(rid: str):
+            body = app.state.db.get(rid)
+            return CheckReport.model_validate(body) if body else None
+
+        return handle_chat(req, load, _run, app.state.llm)
 
     @app.get("/v1/reports", tags=["check"])
     def list_reports(limit: int = Query(50, ge=1, le=200)):

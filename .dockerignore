@@ -1,0 +1,6 @@
+data/patents.jsonl
+.env
+.venv
+*.db
+__pycache__
+.git

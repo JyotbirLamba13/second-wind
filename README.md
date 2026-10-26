@@ -1,4 +1,28 @@
-# Second Life backend
+# Second Life
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/bistvinayak/second-life)
+
+## Try the demo
+
+```bash
+git clone https://github.com/bistvinayak/second-life && cd second-life
+pip install -r requirements.txt
+uvicorn app.main:app          # open http://localhost:8000
+```
+
+It opens a chat. Describe a product idea and get a patent triage report, then ask follow-up questions or describe a design change and it re-checks.
+
+- **Live example (real data):** coffee and beverage makers, CPC `A47J31`, 5,444 real US utility patents from Google Patents Public Data (`data/coffee_a47j31.jsonl.gz`). Try the cold brew or barcode pod examples.
+- **Everything else (mock data):** for an idea outside that industry, the LLM invents a small set of fictional patents on the spot, so you can see the whole product. The report says so in a banner, mock patents are marked `mock` and carry no links. Never rely on those results. The first idea in a new industry takes up to a minute while the mock set is generated, then it is cached.
+- **CPC** (Cooperative Patent Classification) is the category code every patent carries, e.g. `A47J31/44` is beverage-making apparatus. The LLM guesses the codes for your idea, and the backend compares them with what the live dataset covers.
+
+**API key:** the LLM features (idea understanding, mock data for other industries, chat follow-ups) need an OpenRouter key. Copy `.env.example` to `.env` and set `OPENROUTER_API_KEY` (free models only are used by default). On Render, add it as an environment variable. Without a key the app still runs, with weaker idea understanding and no mock data. The app limits each visitor to 12 checks per 10 minutes so a shared key is not drained.
+
+**Deploy a public link:** click the Render button above (free plan, Docker), or `docker build -t second-life . && docker run -p 8000:8000 second-life`. Free Render instances sleep when idle and lose saved reports on restart.
+
+Real patent data is from Google Patents Public Data (https://console.cloud.google.com/marketplace/product/google_patents_public_datasets/google-patents-public-data), licensed CC BY 4.0, via BigQuery.
+
+## Backend
 
 REST API for an AI patent research assistant for student and first-time founders. It does research and triage only. It never gives legal opinions and hands off to a registered patent attorney when risk is high.
 

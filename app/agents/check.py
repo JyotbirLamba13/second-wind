@@ -14,6 +14,7 @@ from ..retrieval import tokenize
 from ..store import PatentStore
 from .common import summarize
 from .llm import LLM
+from .mock import in_live_domain, mock_store
 from .understand import expanded_query, understand_idea
 
 DISCLAIMER = (
@@ -33,8 +34,18 @@ def _cite(store: PatentStore, pid: str, field: str = "claim 1") -> Citation:
 
 def run_check(req: CheckRequest, store: PatentStore, settings: Settings, llm: LLM) -> CheckReport:
     t0 = time.perf_counter()
+    understanding = understand_idea(req.idea, llm if req.use_llm else None, settings.live_domain if store.live_subclasses else "")
+    data_mode, data_note = "live", ""
+    if not in_live_domain(understanding, store):
+        mock = mock_store(req.idea, understanding, store, llm if req.use_llm else None)
+        if mock:
+            store, data_mode = mock, "mock"
+            data_note = (f"Your idea is in {understanding.industry or 'an industry'} that is not in the live dataset ("
+                         f"{settings.live_domain}). These results use AI-generated mock patents to demo the product. Do not rely on them.")
+        else:
+            data_note = ("Your idea looks outside the live dataset (" + settings.live_domain + "), and mock demo data could not be "
+                         "generated. Results below are weak matches.")
     idx = store.index
-    understanding = understand_idea(req.idea, llm if req.use_llm else None)
     query = expanded_query(req.idea, understanding)
     cpc_hints = req.cpc_hints or understanding.cpc_hints or None
     hits = idx.search(query, k=25, mode="hybrid", cpc_hints=cpc_hints)
@@ -104,7 +115,7 @@ def run_check(req: CheckRequest, store: PatentStore, settings: Settings, llm: LL
     }[triage]
 
     return CheckReport(
-        id=uuid.uuid4().hex[:12], created_at=datetime.now(timezone.utc).isoformat(), idea=req.idea, understanding=understanding,
+        id=uuid.uuid4().hex[:12], created_at=datetime.now(timezone.utc).isoformat(), idea=req.idea, understanding=understanding, data_mode=data_mode, data_note=data_note,
         triage=triage, novelty_level=novelty, blocking_level=blocking, summary=summary, claims=claims,
         prior_art=prior_art, blockers=blockers, riskiest_assumption=assumption,
         attorney_handoff=handoff, attorney_handoff_reason=handoff_reason,

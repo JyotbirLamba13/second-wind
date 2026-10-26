@@ -1,6 +1,7 @@
 """Patent loading and report persistence."""
 from __future__ import annotations
 
+import gzip
 import json
 import sqlite3
 import threading
@@ -14,7 +15,8 @@ from .retrieval import Index
 
 def load_patents(path: str) -> list[Patent]:
     out = []
-    with open(path) as f:
+    opener = gzip.open if path.endswith(".gz") else open
+    with opener(path, "rt") as f:
         for line in f:
             line = line.strip()
             if line:
@@ -23,11 +25,18 @@ def load_patents(path: str) -> list[Patent]:
 
 
 class PatentStore:
-    def __init__(self, path: str, today: Optional[date] = None):
+    def __init__(self, path: Optional[str] = None, today: Optional[date] = None, patents: Optional[list] = None):
         self.path = path
         self.today = today or date.today()
-        self.index = Index(load_patents(path))
+        self.index = Index(patents if patents is not None else load_patents(path))
         self.status = {i: legal_status(p, self.today) for i, p in self.index.patents.items()}
+        # CPC subclasses that most of the corpus shares, e.g. {"A47J"}. Empty for a mixed corpus.
+        n = max(len(self.index.patents), 1)
+        counts: dict = {}
+        for groups in self.index.groups.values():
+            for g in groups:
+                counts[g] = counts.get(g, 0) + 1
+        self.live_subclasses = {g for g, c in counts.items() if c / n >= 0.5}
 
     @property
     def patents(self):
