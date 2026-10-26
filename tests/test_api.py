@@ -101,3 +101,7 @@ def test_check_lay_wording_flags_in_force_blocker(client):
     r = client.post("/v1/check", json={"idea": "A bottle that senses how much water I drink and reminds me through a phone app"}).json()
     assert r["triage"] in {"yellow", "red"}
     assert "SL-S008" in [b["patent"]["id"] for b in r["blockers"]]
+
+
+def test_gibberish_query_returns_nothing(client):
+    assert client.post("/v1/search", json={"query": "zzzz qqqq"}).json() == []

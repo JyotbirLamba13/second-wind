@@ -138,8 +138,8 @@ class Index:
         return scores
 
     def embedding(self, q_tokens: list[str]) -> dict[str, float]:
-        if not self.ids:
-            return {}
+        if not self.ids or not any(t in self.idf for t in q_tokens):
+            return {}  # no known vocabulary: hash collisions would otherwise return noise
         sims = self.matrix @ self.embedder.encode(q_tokens)
         return {i: float(sims[r]) for i, r in self.row.items() if sims[r] > 0}
 
