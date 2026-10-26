@@ -30,7 +30,7 @@ def _context(r: CheckReport) -> dict:
 
 def intro(r: CheckReport) -> str:
     n = len(r.blockers)
-    text = (f"I read your idea as: {r.understanding.summary} "
+    text = (f"I read your idea as: {r.understanding.summary.rstrip('. ')}. "
             f"Result: {r.triage.capitalize()}. {r.summary} "
             f"I found {n} possible blocking patent{'s' if n != 1 else ''} and {len(r.prior_art)} close prior-art patents. "
             f"Ask me why something was flagged, or tell me how you would change the design and I will re-check.")
