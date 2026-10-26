@@ -183,6 +183,16 @@ export const api = {
     p.set("offset", String(q.offset ?? 0));
     return call<PatentSummary[]>(`/v1/patents?${p}`);
   },
+  corpusProfile: () =>
+    call<{
+      as_of: string;
+      filings_by_year: { year: number; count: number }[];
+      top_cpc_groups: { code: string; count: number }[];
+      top_assignees: { name: string; count: number }[];
+      with_assignee: number;
+      ending_within_two_years: number;
+      next_to_expire: PatentSummary[];
+    }>("/v1/corpus/profile"),
   patent: (id: string) => call<PatentDetail>(`/v1/patents/${encodeURIComponent(id)}`),
   search: (body: { query: string; k: number; mode: SearchMode; cpc_hints?: string[]; status?: Status[] }) =>
     call<SearchHit[]>("/v1/search", post(body)),

@@ -121,3 +121,12 @@ def test_patents_filter_and_sort_by_expiry(client):
     assert window and all(dates[2] <= r["expiry_date"] <= dates[-3] for r in window)
     assert [r["expiry_date"] for r in window] == sorted((r["expiry_date"] for r in window), reverse=True)
     assert client.get("/v1/patents", params={"sort": "title"}).status_code == 422
+
+
+def test_corpus_profile(client):
+    r = client.get("/v1/corpus/profile", params={"top": 3, "soon": 2}).json()
+    total = client.get("/v1/stats").json()["patents"]
+    assert sum(y["count"] for y in r["filings_by_year"]) == total
+    assert len(r["top_assignees"]) <= 3 and len(r["next_to_expire"]) <= 2
+    dates = [p["expiry_date"] for p in r["next_to_expire"]]
+    assert dates == sorted(dates) and all(p["status"] == "in_force" for p in r["next_to_expire"])

@@ -1,28 +1,30 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useService } from "../components/AppShell";
 import { ErrorNote, PatentRef, Spinner, fmtDate } from "../components/ui";
 import { api, type PatentSummary } from "../lib/api";
 
-const PAGE = 200;
-let cache: PatentSummary[] | null = null; // the profile scans the whole corpus once per visit
+type Profile = {
+  years: [number, number][];
+  groups: [string, number][];
+  assignees: [string, number][];
+  soon: PatentSummary[];
+  within2: number;
+  withAssignee: number;
+};
+let cache: Profile | null = null; // computed server-side; kept for the visit
 
-async function loadAll(onProgress: (n: number) => void): Promise<PatentSummary[]> {
+async function loadProfile(): Promise<Profile> {
   if (cache) return cache;
-  const out: PatentSummary[] = [];
-  for (let offset = 0; ; offset += PAGE * 4) {
-    const pages = await Promise.all([0, 1, 2, 3].map((i) => api.patents({ limit: PAGE, offset: offset + i * PAGE })));
-    for (const p of pages) out.push(...p);
-    onProgress(out.length);
-    if (pages.some((p) => p.length < PAGE)) break;
-  }
-  cache = out;
-  return out;
-}
-
-function topCounts(values: string[], n: number): [string, number][] {
-  const m = new Map<string, number>();
-  for (const v of values) m.set(v, (m.get(v) ?? 0) + 1);
-  return [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, n);
+  const r = await api.corpusProfile();
+  cache = {
+    years: r.filings_by_year.map((y) => [y.year, y.count]),
+    groups: r.top_cpc_groups.map((g) => [g.code, g.count]),
+    assignees: r.top_assignees.map((a) => [a.name, a.count]),
+    soon: r.next_to_expire,
+    within2: r.ending_within_two_years,
+    withAssignee: r.with_assignee,
+  };
+  return cache;
 }
 
 function HBars({ rows, label }: { rows: [string, number][]; label: string }) {
@@ -96,41 +98,17 @@ function YearChart({ years }: { years: [number, number][] }) {
 
 export function CorpusPage() {
   const { stats } = useService();
-  const [all, setAll] = useState<PatentSummary[] | null>(cache);
-  const [loaded, setLoaded] = useState(0);
+  const [profile, setProfile] = useState<Profile | null>(cache);
   const [error, setError] = useState("");
 
   const load = () => {
     setError("");
-    loadAll(setLoaded).then(setAll).catch((e) => setError((e as Error).message));
+    loadProfile().then(setProfile).catch((e) => setError((e as Error).message));
   };
   useEffect(() => {
-    if (!all) load();
+    if (!profile) load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const profile = useMemo(() => {
-    if (!all) return null;
-    const byYear = new Map<number, number>();
-    for (const p of all) {
-      const y = Number(p.filing_date.slice(0, 4));
-      byYear.set(y, (byYear.get(y) ?? 0) + 1);
-    }
-    const ys = [...byYear.keys()];
-    const years: [number, number][] = [];
-    for (let y = Math.min(...ys); y <= Math.max(...ys); y++) years.push([y, byYear.get(y) ?? 0]);
-    const groups = topCounts(all.flatMap((p) => [...new Set(p.cpc.map((c) => c.replace(/\s/g, "")))]).filter((c) => c.startsWith("A47J31")), 10);
-    const assignees = topCounts(all.map((p) => p.assignee).filter((a): a is string => !!a), 10);
-    const today = stats?.as_of ?? new Date().toISOString().slice(0, 10);
-    const soon = all
-      .filter((p) => p.status === "in_force" && p.expiry_date >= today)
-      .sort((a, b) => a.expiry_date.localeCompare(b.expiry_date))
-      .slice(0, 12);
-    const nextYear = new Date(today);
-    nextYear.setFullYear(nextYear.getFullYear() + 2);
-    const within2 = all.filter((p) => p.status === "in_force" && p.expiry_date <= nextYear.toISOString().slice(0, 10)).length;
-    return { years, groups, assignees, soon, within2, withAssignee: all.filter((p) => p.assignee).length };
-  }, [all, stats]);
 
   return (
     <div className="page">
@@ -165,7 +143,7 @@ export function CorpusPage() {
       )}
 
       {error && <ErrorNote error={error} onRetry={load} />}
-      {!profile && !error && <Spinner label={`Profiling the corpus… ${loaded.toLocaleString()} patents read`} />}
+      {!profile && !error && <Spinner label="Profiling the corpus…" />}
 
       {profile && (
         <div style={{ display: "grid", gap: 18 }}>

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import Counter
 from contextlib import asynccontextmanager
 from datetime import date
 from pathlib import Path
@@ -62,6 +63,29 @@ def create_app(settings: Optional[Settings] = None) -> FastAPI:
             counts[st.status] += 1
         return {"patents": len(s.patents), "by_status": counts, "as_of": s.today.isoformat(),
                 "live_domain": settings.live_domain if s.live_subclasses else "", "live_subclasses": sorted(s.live_subclasses)}
+
+    @app.get("/v1/corpus/profile", tags=["meta"])
+    def corpus_profile(top: int = Query(10, ge=1, le=50), soon: int = Query(12, ge=1, le=100)):
+        """What the corpus contains: filings per year, common CPC groups and assignees, and the next patents to leave term."""
+        s = store()
+        years, groups, assignees = Counter(), Counter(), Counter()
+        for i, p in s.patents.items():
+            years[p.filing_date.year] += 1
+            groups.update({c.replace(" ", "") for c in p.cpc if any(c.startswith(g) for g in s.live_subclasses) or not s.live_subclasses})
+            if p.assignee:
+                assignees[p.assignee] += 1
+        in_force = sorted((i for i, st in s.status.items() if st.status == "in_force" and st.expiry_date >= s.today),
+                          key=lambda i: s.status[i].expiry_date)
+        horizon = s.today.replace(year=s.today.year + 2)
+        return {
+            "as_of": s.today.isoformat(),
+            "filings_by_year": [{"year": y, "count": years.get(y, 0)} for y in range(min(years), max(years) + 1)] if years else [],
+            "top_cpc_groups": [{"code": c, "count": n} for c, n in groups.most_common(top)],
+            "top_assignees": [{"name": a, "count": n} for a, n in assignees.most_common(top)],
+            "with_assignee": sum(assignees.values()),
+            "ending_within_two_years": sum(1 for i in in_force if s.status[i].expiry_date <= horizon),
+            "next_to_expire": [summarize(s.patents[i], s.status[i]) for i in in_force[:soon]],
+        }
 
     @app.get("/v1/patents", response_model=list[PatentSummary], tags=["patents"])
     def list_patents(
