@@ -24,7 +24,9 @@ const EXAMPLES = [
   },
 ];
 
-const GREETING: ChatMessage = {
+type Msg = ChatMessage & { source?: "ai" | "rules" };
+
+const GREETING: Msg = {
   role: "assistant",
   content:
     "Describe your product in a sentence or two: what it does and how it works. I'll search the patent corpus and rate how much it overlaps with existing patents. After that, ask me about any result, or tell me how you'd change the design and I'll re-check.",
@@ -33,7 +35,7 @@ const GREETING: ChatMessage = {
 export function CheckPage() {
   const [params, setParams] = useSearchParams();
   const { health } = useService();
-  const [messages, setMessages] = useState<ChatMessage[]>([GREETING]);
+  const [messages, setMessages] = useState<Msg[]>([GREETING]);
   const [report, setReport] = useState<CheckReport | null>(null);
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
@@ -70,8 +72,8 @@ export function CheckPage() {
     setLastSent(content);
     try {
       // The greeting is UI copy, not part of the conversation the API sees.
-      const res = await api.chat(next.slice(1).slice(-30), report);
-      setMessages([...next, { role: "assistant", content: res.reply }]);
+      const res = await api.chat(next.slice(1).slice(-30).map(({ role, content }) => ({ role, content })), report);
+      setMessages([...next, { role: "assistant", content: res.reply, source: res.action === "answer" ? res.source ?? "rules" : undefined }]);
       if (res.report) {
         setReport(res.report);
         saveReport(res.report);
@@ -116,6 +118,11 @@ export function CheckPage() {
             {messages.map((m, i) => (
               <div key={i} className={`msg ${m.role}`}>
                 {m.content}
+                {m.source && (
+                  <span className="msg-source">
+                    {m.source === "ai" ? "AI answer, checked against this report's patents, numbers and dates" : "Answer taken directly from the report"}
+                  </span>
+                )}
               </div>
             ))}
             {busy && (

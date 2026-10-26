@@ -46,6 +46,8 @@ class Settings:
     novelty_yellow: float = 0.25
     # Embedding cosine above which an in-force patent counts as a possible blocker for a lapsed one.
     scout_block_cosine: float = 0.30
+    # Raw-idea overlap with the live corpus above which an idea stays on live data even if the model calls it out of domain.
+    live_override: float = 0.45
 
 
 def get_settings() -> Settings:

@@ -81,7 +81,7 @@ class Understanding(BaseModel):
 
 
 class CheckRequest(BaseModel):
-    idea: str = Field(min_length=20, description="Plain-language description of the product or invention")
+    idea: str = Field(min_length=20, max_length=4000, description="Plain-language description of the product or invention")
     cpc_hints: Optional[list[str]] = None
     use_llm: bool = True
 
@@ -107,6 +107,7 @@ class Assumption(BaseModel):
     assumption: str
     two_week_test: str
     citations: list[Citation]
+    ai_written: bool = Field(False, description="True when the wording came from the model and passed the guardrails")
 
 
 class ReportClaim(BaseModel):
@@ -155,4 +156,5 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     action: Literal["check", "answer", "recheck", "ask"]
     reply: str
+    source: Literal["ai", "rules"] = Field("rules", description="'ai' when the reply came from the model and passed the guardrails")
     report: Optional[CheckReport] = None

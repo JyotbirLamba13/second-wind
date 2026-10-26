@@ -34,6 +34,20 @@ export function Legal() {
           red doesn't mean blocked. A red result means a professional should look at the cited claims before you invest further.
         </p>
 
+        <h2>How the AI is kept in check</h2>
+        <p>
+          An AI model helps read ideas, word explanations and answer follow-up questions. It never decides a result on its own, and everything it
+          writes is checked automatically before you see it:
+        </p>
+        <ul>
+          <li>It can only make a result more cautious. Your exact words are always searched too, and the higher overlap counts.</li>
+          <li>Answers may only name patents in your report, and only use percentages and dates the report contains.</li>
+          <li>Text that sounds like a legal conclusion, such as "you won't infringe" or "this is patentable", is blocked.</li>
+          <li>Restatements of your idea, and changes you describe, must stay close to your own words.</li>
+          <li>When AI text fails a check, you get an answer built directly from the report instead, and it's labeled that way.</li>
+          <li>Questions about infringement, licensing or legal risk always end with a pointer to a registered patent attorney.</li>
+        </ul>
+
         <h2>Demo data</h2>
         <p>
           The live corpus covers one US patent class: coffee and beverage-making apparatus (CPC A47J31). For other ideas, the demo invents

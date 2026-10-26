@@ -13,6 +13,7 @@ from ..schemas import (
 from ..retrieval import tokenize
 from ..store import PatentStore
 from .common import summarize
+from .guard import check_text
 from .llm import LLM
 from .mock import in_live_domain, mock_store
 from .understand import expanded_query, understand_idea
@@ -36,7 +37,13 @@ def run_check(req: CheckRequest, store: PatentStore, settings: Settings, llm: LL
     t0 = time.perf_counter()
     understanding = understand_idea(req.idea, llm if req.use_llm else None, settings.live_domain if store.live_subclasses else "")
     data_mode, data_note = "live", ""
-    if not in_live_domain(understanding, store):
+    # The idea's own words, searched without any model help. The model can widen the search, never narrow it.
+    raw_hits = store.index.search(req.idea, k=25, mode="hybrid", cpc_hints=req.cpc_hints)
+    live_match = max((store.index.idea_coverage(h.id, req.idea) for h in raw_hits[:10]), default=0.0)
+    if not in_live_domain(understanding, store) and live_match >= settings.live_override:
+        data_note = ("The AI placed this idea outside the live dataset, but its own words match live patents closely, "
+                     "so real data is used.")
+    elif not in_live_domain(understanding, store):
         mock = mock_store(req.idea, understanding, store, llm if req.use_llm else None)
         if mock:
             store, data_mode = mock, "mock"
@@ -49,11 +56,15 @@ def run_check(req: CheckRequest, store: PatentStore, settings: Settings, llm: LL
     query = expanded_query(req.idea, understanding)
     cpc_hints = req.cpc_hints or understanding.cpc_hints or None
     hits = idx.search(query, k=25, mode="hybrid", cpc_hints=cpc_hints)
+    if data_mode == "live" and query != req.idea:
+        seen = {h.id for h in hits}
+        hits += [h for h in raw_hits if h.id not in seen]
 
     prior_art, blockers = [], []
     for h in hits:
         claim_cov, matched = idx.claim_coverage(h.id, query)
-        cov = max(claim_cov, idx.idea_coverage(h.id, query))
+        # Conservative: the worse of the founder's words and the model's reading, so model wording can't hide overlap.
+        cov = max(claim_cov, idx.idea_coverage(h.id, query), idx.idea_coverage(h.id, req.idea))
         if cov < 0.15:
             continue
         st = store.status[h.id].status
@@ -151,11 +162,19 @@ def _assumption(req, store, blockers, prior_art, novelty, llm) -> Assumption:
                            "Week 2: interview three domain experts and ask what already does this."),
             citations=[])
     if llm and llm.enabled and base.citations:
-        ev = {"idea": req.idea, "draft": base.model_dump(), "allowed_patent_ids": [c.patent_id for c in base.citations]}
+        ids = [c.patent_id for c in base.citations]
+        ev = {"idea": req.idea, "draft": base.model_dump(), "allowed_patent_ids": ids}
         out = llm.json_call(
-            "Rewrite the riskiest assumption and two-week test so a first-time founder or inventor can act on them. "
-            "Keys: assumption, two_week_test. Mention only the patent ids in allowed_patent_ids.",
+            "Rewrite the riskiest assumption and two-week test in plainer words so a first-time founder or inventor can act on them. "
+            "Keys: assumption, two_week_test. Keep the same meaning as the draft: same patent, same claim elements, same direction. "
+            "Name the patent id from allowed_patent_ids in the assumption and mention no other patent. Add no new facts, numbers or dates.",
             json.dumps(ev, default=str))
-        if out and isinstance(out.get("assumption"), str) and isinstance(out.get("two_week_test"), str):
-            base = base.model_copy(update={"assumption": out["assumption"], "two_week_test": out["two_week_test"]})
+        if out:
+            a, t = out.get("assumption"), out.get("two_week_test")
+            sources = [base.assumption, base.two_week_test, req.idea]
+            context = " ".join(sources)
+            bad = (check_text(a, allowed_ids=ids, context=context, max_len=400, must_mention=ids[:1], sources=sources, max_novel=0.6)
+                   or check_text(t, allowed_ids=ids, context=context, max_len=900, sources=sources, max_novel=0.7))
+            if not bad:
+                base = base.model_copy(update={"assumption": a.strip(), "two_week_test": t.strip(), "ai_written": True})
     return base

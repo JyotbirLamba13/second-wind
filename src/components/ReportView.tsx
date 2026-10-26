@@ -116,7 +116,9 @@ export function ReportView({ report: r }: { report: CheckReport }) {
       <section className="panel">
         <div className="panel-head">
           <h2>How the idea was read</h2>
-          <span className="faint small">{u.source === "llm" ? "Read by AI model" : "AI unavailable: searched your exact words"}</span>
+          <span className="faint small">
+            {u.source === "llm" ? "Read by AI. Your exact words are searched too, and the higher overlap counts." : "AI unavailable: searched your exact words"}
+          </span>
         </div>
         <div className="panel-pad">
           <dl className="kv">
@@ -194,7 +196,8 @@ export function ReportView({ report: r }: { report: CheckReport }) {
                 {b.unmatched_distinctive_terms.map((t) => <span className="term miss" key={"u" + t} title="In claim 1 but not in your idea">{t}</span>)}
               </div>
               <p className="faint small">
-                Red terms appear in both your idea and claim 1. Green terms are claim elements your description doesn't mention.
+                Red terms appear in claim 1 and in your description or the search words it was read as. Green terms are claim elements
+                your description doesn't mention.
                 {b.patent.assignee ? ` Assignee: ${b.patent.assignee}.` : ""} Expires {fmtDate(b.patent.expiry_date)}.{" "}
                 <ExternalLink href={b.patent.url}>Google Patents</ExternalLink>
               </p>
@@ -246,7 +249,9 @@ export function ReportView({ report: r }: { report: CheckReport }) {
       </section>
 
       <section className="panel panel-pad assume">
-        <p className="faint small">Riskiest assumption</p>
+        <p className="faint small">
+          Riskiest assumption{r.riskiest_assumption.ai_written ? ": reworded by AI and checked against the cited patent" : ""}
+        </p>
         <h3 style={{ marginTop: 6 }}>{r.riskiest_assumption.assumption}</h3>
         <p style={{ marginTop: 12 }}>
           <b>Two-week test.</b> {r.riskiest_assumption.two_week_test}

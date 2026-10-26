@@ -274,6 +274,7 @@ table.data .num { text-align: right; white-space: nowrap; }
 .msg { max-width: 92%; padding: 10px 14px; border-radius: var(--r-md); font-size: 0.9375rem; }
 .msg.user { align-self: flex-end; background: var(--ink); color: var(--paper); }
 .msg.assistant { align-self: flex-start; background: var(--paper); border: 1px solid var(--rule-soft); }
+.msg-source { display: block; margin-top: 6px; font-size: 0.75rem; color: var(--ink-3); }
 .msg.pending { color: var(--ink-3); font-style: italic; }
 .composer { border-top: 1px solid var(--rule-soft); padding: 14px; display: grid; gap: 10px; }
 .composer .row .btn { white-space: nowrap; }

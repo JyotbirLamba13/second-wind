@@ -77,7 +77,7 @@ export interface CheckReport {
   claims: { text: string; citations: Citation[] }[];
   prior_art: PriorArtItem[];
   blockers: Blocker[];
-  riskiest_assumption: { assumption: string; two_week_test: string; citations: Citation[] };
+  riskiest_assumption: { assumption: string; two_week_test: string; citations: Citation[]; ai_written?: boolean };
   attorney_handoff: boolean;
   attorney_handoff_reason: string;
   metrics: Record<string, number>;
@@ -92,6 +92,7 @@ export interface ChatMessage {
 export interface ChatResponse {
   action: "check" | "answer" | "recheck" | "ask";
   reply: string;
+  source?: "ai" | "rules";
   report: CheckReport | null;
 }
 

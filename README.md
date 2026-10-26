@@ -90,6 +90,18 @@ curl -s localhost:8000/v1/check -H 'content-type: application/json' \
 - **Scout** (`app/agents/scout.py`): score 0-100 from forward citations (30%), family breadth (15%), clearance from similar in-force patents (30%), and new activity in the class since the lapse (25%).
 - **LLM (optional)**: set `OPENROUTER_API_KEY` (and optionally `OPENROUTER_MODELS` (comma-separated fallback chain, default all free: Nemotron 3 Ultra, Gemma 4 31B, then the OpenRouter free router)) in `.env`, or `ANTHROPIC_API_KEY`. If the call fails, for example with no credits, the deterministic text is used. With a key set, the riskiest-assumption text is rewritten by the model, restricted to patent ids already found. Without a key, deterministic templates are used and everything works.
 
+## AI guardrails
+
+`app/agents/guard.py` checks everything the model writes before it reaches a user; failures fall back to rule-based text built from the report.
+
+- Scoring is conservative: each patent is scored on the founder's raw words and on the model-expanded query, and the higher overlap counts, so model wording can raise a result but never lower it. Raw-idea search results are merged in too.
+- An idea whose raw words match the live corpus strongly (`live_override`) stays on live data even if the model calls it out of domain.
+- Idea summaries and features must stay within the founder's wording (`novel_ratio`).
+- Chat answers and assumption rewrites may only name patent ids in the report and only use percentages and years from it; legal conclusions ("won't infringe", "patentable", "safe to sell", "guarantee") are rejected. Assumption rewrites must keep the cited patent.
+- Revised ideas from design changes must stay close to the original idea plus the founder's message, otherwise the founder's own words are used.
+- Legal-topic questions always get an attorney pointer; answers on mock data are labelled. Responses carry `source: ai | rules` and `ai_written` so the UI can label them.
+- Prompts tell the model to treat user text as data, not instructions.
+
 ## Real data (Google Patents on BigQuery)
 
 `scripts/load_bigquery.py` pulls US utility patents for a CPC prefix from Google Patents Public Data into the JSONL format. BigQuery bills whole columns, so a pull costs about 170 GB of scan no matter how narrow the CPC (check with `--dry-run` first; the free tier is 1 TB a month). Run it once, then serve the file.
