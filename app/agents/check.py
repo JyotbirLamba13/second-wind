@@ -46,7 +46,7 @@ def run_check(req: CheckRequest, store: PatentStore, settings: Settings, llm: LL
         p = store.patents[h.id]
         summ = summarize(p, store.status[h.id])
         prior_art.append(PriorArtItem(
-            patent=summ, similarity=round(similarity, 3), claim_coverage=round(cov, 3), matched_terms=matched[:8],
+            patent=summ, similarity=round(similarity, 3), claim_coverage=round(cov, 3), matched_terms=[idx.surface(t) for t in matched[:8]],
             why=f"Overlap {cov:.0%}: claim 1 shares {claim_cov:.0%} of its terms with the idea ({st.replace('_', ' ')})."))
         if st == "in_force":
             lvl = _level(cov, settings.blocking_yellow, settings.blocking_red)
@@ -54,8 +54,8 @@ def run_check(req: CheckRequest, store: PatentStore, settings: Settings, llm: LL
                 claim_terms = set(tokenize(p.claims[0] if p.claims else p.abstract))
                 missing = sorted(claim_terms - set(matched), key=lambda t: -idx.idf.get(t, 0))[:6]
                 blockers.append(Blocker(
-                    patent=summ, claim_coverage=round(cov, 3), matched_terms=matched[:8],
-                    unmatched_distinctive_terms=missing, level=lvl,
+                    patent=summ, claim_coverage=round(cov, 3), matched_terms=[idx.surface(t) for t in matched[:8]],
+                    unmatched_distinctive_terms=[idx.surface(t) for t in missing], level=lvl,
                     why=(f"In force until {summ.expiry_date}. The idea reads on {cov:.0%} of claim 1's terms; "
                          f"a design that avoids elements like {', '.join(missing[:3]) or 'its limitations'} may sit outside it.")))
     prior_art.sort(key=lambda x: -x.claim_coverage)

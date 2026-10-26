@@ -17,9 +17,10 @@ class LLM:
         self.model = settings.model
         self.client = None
         self.openrouter_key = settings.openrouter_key
-        self.openrouter_model = settings.openrouter_model
+        self.openrouter_models = settings.openrouter_models
         self.input_tokens = 0
         self.output_tokens = 0
+        self.last_model = None
         if settings.anthropic_key:
             try:
                 import anthropic
@@ -52,25 +53,27 @@ class LLM:
         return self._parse("".join(b.text for b in msg.content if getattr(b, "type", "") == "text"))
 
     def _openrouter(self, system: str, prompt: str, max_tokens: int) -> Optional[dict]:
-        try:
-            r = httpx.post(
-                "https://openrouter.ai/api/v1/chat/completions",
-                headers={"Authorization": f"Bearer {self.openrouter_key}"},
-                json={"model": self.openrouter_model, "max_tokens": max_tokens,
-                      "messages": [{"role": "system", "content": system}, {"role": "user", "content": prompt}]},
-                timeout=30,
-            )
-            r.raise_for_status()
-            body = r.json()
-        except Exception:
-            return None
-        usage = body.get("usage", {})
-        self.input_tokens += usage.get("prompt_tokens", 0)
-        self.output_tokens += usage.get("completion_tokens", 0)
-        try:
-            return self._parse(body["choices"][0]["message"]["content"])
-        except (KeyError, IndexError):
-            return None
+        for model in self.openrouter_models:
+            try:
+                r = httpx.post(
+                    "https://openrouter.ai/api/v1/chat/completions",
+                    headers={"Authorization": f"Bearer {self.openrouter_key}"},
+                    json={"model": model, "max_tokens": max_tokens,
+                          "messages": [{"role": "system", "content": system}, {"role": "user", "content": prompt}]},
+                    timeout=30,
+                )
+                r.raise_for_status()
+                body = r.json()
+                out = self._parse(body["choices"][0]["message"]["content"] or "")
+            except Exception:
+                continue  # rate limit, outage or bad output: try the next model
+            usage = body.get("usage", {})
+            self.input_tokens += usage.get("prompt_tokens", 0)
+            self.output_tokens += usage.get("completion_tokens", 0)
+            if out is not None:
+                self.last_model = body.get("model", model)
+                return out
+        return None
 
     @staticmethod
     def _parse(text: str) -> Optional[dict]:

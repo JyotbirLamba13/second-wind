@@ -97,6 +97,12 @@ class Index:
         self.patents: dict[str, Patent] = {p.id: p for p in patents}
         self.ids = list(self.patents)
         self.k1, self.b = k1, b
+        self.surface_forms: dict[str, str] = {}
+        for pat in self.patents.values():
+            for w in _TOKEN.findall(pat.text.lower()):
+                st = tokenize(w)
+                if st and (st[0] not in self.surface_forms or len(w) < len(self.surface_forms[st[0]])):
+                    self.surface_forms[st[0]] = w
         self.tokens = {i: tokenize(self.patents[i].text) for i in self.ids}
         self.tf = {i: Counter(t) for i, t in self.tokens.items()}
         self.df: Counter = Counter()
@@ -198,6 +204,10 @@ class Index:
                 detail[i][name] = s
         top = sorted(fused.items(), key=lambda x: -x[1])[:k]
         return [Hit(i, s, detail[i]) for i, s in top]
+
+    def surface(self, stem: str) -> str:
+        """Readable word for a stemmed term, for showing to users."""
+        return self.surface_forms.get(stem, stem)
 
     # -- explainable overlap ------------------------------------------------
     def claim_coverage(self, patent_id: str, idea: str) -> tuple[float, list[str]]:

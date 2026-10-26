@@ -22,7 +22,17 @@ class Settings:
     model: str = field(default_factory=lambda: os.getenv("SECOND_LIFE_MODEL", "claude-sonnet-5-5"))
     anthropic_key: str = field(default_factory=lambda: os.getenv("ANTHROPIC_API_KEY", ""))
     openrouter_key: str = field(default_factory=lambda: os.getenv("OPENROUTER_API_KEY", ""))
-    openrouter_model: str = field(default_factory=lambda: os.getenv("OPENROUTER_MODEL", "anthropic/claude-sonnet-4.5"))
+    # Tried in order; the first that returns valid JSON wins. All free tier.
+    openrouter_models: tuple = field(
+        default_factory=lambda: tuple(
+            m.strip()
+            for m in os.getenv(
+                "OPENROUTER_MODELS",
+                "nvidia/nemotron-3-ultra-550b-a55b:free,google/gemma-4-31b-it:free,openrouter/free",
+            ).split(",")
+            if m.strip()
+        )
+    )
     cors_origins: tuple = field(
         default_factory=lambda: tuple(o.strip() for o in os.getenv("CORS_ORIGINS", "*").split(",") if o.strip())
     )

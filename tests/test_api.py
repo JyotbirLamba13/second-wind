@@ -12,7 +12,7 @@ from app.patents import Patent, legal_status
 @pytest.fixture(scope="module")
 def client(tmp_path_factory):
     db = str(tmp_path_factory.mktemp("db") / "t.db")
-    s = Settings(db_path=db, anthropic_key="")
+    s = Settings(db_path=db, anthropic_key="", openrouter_key="")  # tests never call an LLM
     with TestClient(create_app(s)) as c:
         yield c
 
