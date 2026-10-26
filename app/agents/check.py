@@ -153,7 +153,7 @@ def _assumption(req, store, blockers, prior_art, novelty, llm) -> Assumption:
     if llm and llm.enabled and base.citations:
         ev = {"idea": req.idea, "draft": base.model_dump(), "allowed_patent_ids": [c.patent_id for c in base.citations]}
         out = llm.json_call(
-            "Rewrite the riskiest assumption and two-week test so a first-time hardware founder can act on them. "
+            "Rewrite the riskiest assumption and two-week test so a first-time founder or inventor can act on them. "
             "Keys: assumption, two_week_test. Mention only the patent ids in allowed_patent_ids.",
             json.dumps(ev, default=str))
         if out and isinstance(out.get("assumption"), str) and isinstance(out.get("two_week_test"), str):

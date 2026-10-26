@@ -3,9 +3,9 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { AppShell } from "./components/AppShell";
 import { BenchmarkPage } from "./pages/BenchmarkPage";
-import { BrowsePage } from "./pages/BrowsePage";
 import { CheckPage } from "./pages/CheckPage";
 import { CorpusPage } from "./pages/CorpusPage";
+import { ExpiryPage } from "./pages/ExpiryPage";
 import { Landing } from "./pages/Landing";
 import { Legal } from "./pages/Legal";
 import { PatentPage } from "./pages/PatentPage";
@@ -33,10 +33,11 @@ createRoot(document.getElementById("root")!).render(
         <Route path="/app" element={<AppShell />}>
           <Route index element={<Navigate to="check" replace />} />
           <Route path="check" element={<CheckPage />} />
+          <Route path="expiry" element={<ExpiryPage />} />
           <Route path="scout" element={<ScoutPage />} />
           <Route path="research" element={<Navigate to="search" replace />} />
           <Route path="research/search" element={<SearchPage />} />
-          <Route path="research/browse" element={<BrowsePage />} />
+          <Route path="research/browse" element={<Navigate to="/app/research/search" replace />} />
           <Route path="research/corpus" element={<CorpusPage />} />
           <Route path="research/benchmark" element={<BenchmarkPage />} />
           <Route path="reports" element={<ReportsPage />} />

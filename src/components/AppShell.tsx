@@ -15,11 +15,11 @@ export const useService = () => useContext(ServiceCtx);
 const NAV = [
   { group: "Triage", items: [
     { to: "/app/check", label: "Idea check", icon: Icons.check },
+    { to: "/app/expiry", label: "Patent expiry", icon: Icons.expiry },
     { to: "/app/scout", label: "Opportunity scout", icon: Icons.scout },
   ] },
   { group: "Research", items: [
     { to: "/app/research/search", label: "Patent search", icon: Icons.search },
-    { to: "/app/research/browse", label: "Browse corpus", icon: Icons.browse },
     { to: "/app/research/corpus", label: "Corpus profile", icon: Icons.corpus },
     { to: "/app/research/benchmark", label: "Retrieval benchmark", icon: Icons.bench },
   ] },
@@ -28,9 +28,9 @@ const NAV = [
 
 const TITLES: [string, string][] = [
   ["/app/check", "Idea check"],
+  ["/app/expiry", "Patent expiry"],
   ["/app/scout", "Opportunity scout"],
   ["/app/research/search", "Patent search"],
-  ["/app/research/browse", "Browse corpus"],
   ["/app/research/corpus", "Corpus profile"],
   ["/app/research/benchmark", "Retrieval benchmark"],
   ["/app/reports", "Saved reports"],

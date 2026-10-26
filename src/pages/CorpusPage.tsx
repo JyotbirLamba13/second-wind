@@ -138,8 +138,7 @@ export function CorpusPage() {
         <div>
           <h1>Corpus profile</h1>
           <p>
-            What the live corpus contains, so you know the limits of every search. {stats?.live_domain ? `It covers ${stats.live_domain}.` : ""}{" "}
-            Source: Google Patents Public Data (CC BY 4.0).
+            What every search covers: {stats?.live_domain || "the loaded patent classes"}, from Google Patents Public Data (CC BY 4.0).
           </p>
         </div>
       </div>

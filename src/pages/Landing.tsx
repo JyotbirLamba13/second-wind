@@ -42,7 +42,7 @@ export function Landing() {
             <div>
               <h1>See which patents stand in your way before you build.</h1>
               <p className="lede">
-                Second Life gives hardware founders, and the programs that back them, a first-pass patent read in about a minute: how
+                Second Life gives founders, inventors and the programs that back them a first-pass patent read in about a minute: how
                 novel an idea looks, which in-force patents could block it, and which expired ones are free to build on.
               </p>
               <div className="ctas">
@@ -95,6 +95,7 @@ export function Landing() {
                   <li>0–100 score with the reasons behind it</li>
                   <li>Similar in-force patents to clear first</li>
                   <li>Activity in the class since the lapse</li>
+                  <li>Patents around your idea that expire soon</li>
                 </ul>
                 <Link to="/app/scout">Open scout</Link>
               </div>
@@ -131,9 +132,9 @@ export function Landing() {
 
         <section className="section" id="teams">
           <div className="wrap">
-            <h2>Built for the programs that back hardware founders</h2>
+            <h2>Built for the people who back new products</h2>
             <p className="intro">
-              Most first-time founders meet patents too late, after the prototype or the raise. Second Life moves that first look to week one,
+              Most first-time founders meet patents too late, after the build or the raise. Second Life moves that first look to week one,
               and gives advisors a consistent starting point.
             </p>
             <div className="audiences">
@@ -156,8 +157,8 @@ export function Landing() {
                 </ul>
               </div>
               <div className="aud">
-                <h3>Hardware product teams</h3>
-                <p className="who">Product leads, R&amp;D engineers</p>
+                <h3>Product and R&amp;D teams</h3>
+                <p className="who">Product leads, engineers, designers</p>
                 <p>Check a design change against in-force claims while it's still cheap to change.</p>
                 <ul>
                   <li>Re-check a revised design in one message</li>
@@ -165,8 +166,8 @@ export function Landing() {
                 </ul>
               </div>
               <div className="aud">
-                <h3>Founders</h3>
-                <p className="who">Students and first-time builders</p>
+                <h3>Founders and inventors</h3>
+                <p className="who">Students, first-time builders, independent inventors</p>
                 <p>Learn what patents in your space actually claim, and what your riskiest assumption is.</p>
                 <ul>
                   <li>Plain-language explanations</li>

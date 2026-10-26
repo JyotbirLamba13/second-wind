@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { api, type CheckReport, type Citation } from "../lib/api";
+import { Link } from "react-router-dom";
+import type { CheckReport, Citation } from "../lib/api";
 import {
   ExternalLink, LEVEL_MEANING, LegalNotice, Meter, PatentRef, StatusTag, Triage, USPTO_CLINICS, USPTO_PRO_BONO, USPTO_ROSTER,
   fmtDate, pct,
@@ -30,15 +31,10 @@ export function PacketButton({ report }: { report: CheckReport }) {
     setBusy(true);
     setErr("");
     try {
-      const md = await api.packet(report);
-      const url = URL.createObjectURL(new Blob([md], { type: "text/markdown" }));
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `second-life-prior-art-${report.id}.md`;
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch (e) {
-      setErr((e as Error).message);
+      const { downloadPacket } = await import("../lib/packetDocx");
+      await downloadPacket(report);
+    } catch {
+      setErr("The Word file couldn't be created. Try again, or use a different browser.");
     } finally {
       setBusy(false);
     }
@@ -46,7 +42,7 @@ export function PacketButton({ report }: { report: CheckReport }) {
   return (
     <span style={{ display: "inline-grid", gap: 4 }}>
       <button className="btn sm" onClick={download} disabled={busy}>
-        {busy ? "Preparing packet…" : "Download prior-art packet"}
+        {busy ? "Preparing packet…" : "Download prior-art packet (.docx)"}
       </button>
       {err && <span className="small" style={{ color: "var(--red)" }}>{err}</span>}
     </span>
@@ -89,7 +85,14 @@ export function ReportView({ report: r }: { report: CheckReport }) {
             </div>
           </div>
         </div>
-        <PacketButton report={r} />
+        <div style={{ display: "grid", gap: 10, justifyItems: "end" }}>
+          <PacketButton report={r} />
+          {r.data_mode === "live" && (
+            <Link className="small" to={`/app/expiry?q=${encodeURIComponent(r.idea)}`}>
+              Related patents expiring soon
+            </Link>
+          )}
+        </div>
       </section>
 
       <section className={`panel panel-pad handoff ${r.attorney_handoff ? "" : "calm"}`}>

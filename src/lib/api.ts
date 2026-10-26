@@ -174,10 +174,21 @@ const post = (body: unknown): RequestInit => ({ method: "POST", body: JSON.strin
 export const api = {
   health: () => call<Health>("/health"),
   stats: () => call<Stats>("/v1/stats"),
-  patents: (q: { status?: Status | ""; cpc?: string; limit?: number; offset?: number }) => {
+  patents: (q: {
+    status?: Status | "";
+    cpc?: string;
+    expires_after?: string;
+    expires_before?: string;
+    sort?: "expiry" | "-expiry";
+    limit?: number;
+    offset?: number;
+  }) => {
     const p = new URLSearchParams();
     if (q.status) p.set("status", q.status);
     if (q.cpc) p.set("cpc", q.cpc);
+    if (q.expires_after) p.set("expires_after", q.expires_after);
+    if (q.expires_before) p.set("expires_before", q.expires_before);
+    if (q.sort) p.set("sort", q.sort);
     p.set("limit", String(q.limit ?? 50));
     p.set("offset", String(q.offset ?? 0));
     return call<PatentSummary[]>(`/v1/patents?${p}`);

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useService } from "../components/AppShell";
-import { ErrorNote, ExternalLink, LegalNotice, Spinner, StatusTag, fmtDate } from "../components/ui";
+import { ErrorNote, ExternalLink, LegalNotice, Spinner, StatusTag, decode, fmtDate } from "../components/ui";
 import { api, type PatentDetail } from "../lib/api";
 
 export function PatentPage() {
@@ -46,9 +46,9 @@ export function PatentPage() {
       <div className="page-head">
         <div>
           <p className="faint small">
-            <Link to="/app/research/browse">Browse corpus</Link> / {p.id}
+            <Link to="/app/research/search">Patent search</Link> / {p.id}
           </p>
-          <h1 style={{ marginTop: 6, maxWidth: "32ch" }}>{p.title}</h1>
+          <h1 style={{ marginTop: 6, maxWidth: "32ch" }}>{decode(p.title)}</h1>
           <p style={{ display: "flex", gap: 14, flexWrap: "wrap", alignItems: "center" }}>
             <span className="pid">{p.id}</span>
             <StatusTag p={p} />

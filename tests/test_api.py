@@ -111,3 +111,13 @@ def test_ui_served(client):
     r = client.get("/ui/")
     assert r.status_code == 200 and "Second Life" in r.text
     assert client.get("/", follow_redirects=False).headers["location"] == "/ui/"
+
+
+def test_patents_filter_and_sort_by_expiry(client):
+    rows = client.get("/v1/patents", params={"sort": "expiry", "limit": 200}).json()
+    dates = [r["expiry_date"] for r in rows]
+    assert dates == sorted(dates)
+    window = client.get("/v1/patents", params={"expires_after": dates[2], "expires_before": dates[-3], "sort": "-expiry"}).json()
+    assert window and all(dates[2] <= r["expiry_date"] <= dates[-3] for r in window)
+    assert [r["expiry_date"] for r in window] == sorted((r["expiry_date"] for r in window), reverse=True)
+    assert client.get("/v1/patents", params={"sort": "title"}).status_code == 422

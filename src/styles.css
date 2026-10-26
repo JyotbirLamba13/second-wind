@@ -25,27 +25,6 @@
   color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --paper: #12171f;
-    --sheet: #1a212c;
-    --ink: #e6e9ee;
-    --ink-2: #b4bcc8;
-    --ink-3: #8a94a3;
-    --rule: #384252;
-    --rule-soft: #283140;
-    --stamp: #8b97f2;
-    --stamp-ink: #12171f;
-    --stamp-soft: #262d52;
-    --green: #6cc38f;
-    --green-soft: #1d3326;
-    --amber: #e0a94a;
-    --amber-soft: #3a2d15;
-    --red: #ee8579;
-    --red-soft: #3d2120;
-    color-scheme: dark;
-  }
-}
 
 * { box-sizing: border-box; }
 html, body, #root { min-height: 100%; }
@@ -87,6 +66,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 }
 .textarea { resize: vertical; min-height: 96px; line-height: 1.5; }
 .input:focus, .select:focus, .textarea:focus { outline: 2px solid var(--stamp); outline-offset: -1px; border-color: transparent; }
+.linklike { background: none; border: 0; padding: 0; color: var(--stamp); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; font: inherit; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .chip {
   display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px;
@@ -263,7 +243,8 @@ button.chip { cursor: pointer; }
 .page { padding: 28px; max-width: 1240px; }
 .page-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap; margin-bottom: 22px; }
 .page-head h1 { font-size: 1.9rem; }
-.page-head p { color: var(--ink-2); margin-top: 6px; max-width: 70ch; }
+.page-head > div { flex: 1 1 520px; }
+.page-head p { color: var(--ink-2); margin-top: 6px; }
 
 .panel { background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--r-md); }
 .panel-pad { padding: 20px 22px; }
@@ -313,7 +294,7 @@ table.data .num { text-align: right; white-space: nowrap; }
 .verdict .idea { margin-top: 10px; font-family: var(--serif); color: var(--ink-2); font-style: italic; }
 .levels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
 .levels div { border-top: 1px solid var(--rule-soft); padding-top: 10px; }
-.levels span { color: var(--ink-3); font-size: 0.8125rem; display: block; margin-bottom: 4px; }
+.levels span:not(.triage) { color: var(--ink-3); font-size: 0.8125rem; display: block; margin-bottom: 4px; }
 .kv { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 8px 16px; font-size: 0.9375rem; }
 .kv dt { color: var(--ink-3); }
 .kv dd { margin: 0; }

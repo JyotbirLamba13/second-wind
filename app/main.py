@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
+from datetime import date
 from pathlib import Path
 from typing import Optional
 
@@ -66,17 +67,27 @@ def create_app(settings: Optional[Settings] = None) -> FastAPI:
     def list_patents(
         status: Optional[str] = Query(None, pattern="^(in_force|lapsed|expired)$"),
         cpc: Optional[str] = Query(None, description="CPC prefix, e.g. A47J"),
+        expires_after: Optional[date] = Query(None, description="Only patents whose term ends on or after this date"),
+        expires_before: Optional[date] = Query(None, description="Only patents whose term ends on or before this date"),
+        sort: Optional[str] = Query(None, pattern="^-?expiry$", description="'expiry' soonest first, '-expiry' latest first"),
         limit: int = Query(50, ge=1, le=200),
         offset: int = Query(0, ge=0),
     ):
         s = store()
         out = []
         for i, p in s.patents.items():
-            if status and s.status[i].status != status:
+            st = s.status[i]
+            if status and st.status != status:
                 continue
             if cpc and not any(c.replace(" ", "").startswith(cpc) for c in p.cpc):
                 continue
-            out.append(summarize(p, s.status[i]))
+            if expires_after and st.expiry_date < expires_after:
+                continue
+            if expires_before and st.expiry_date > expires_before:
+                continue
+            out.append(summarize(p, st))
+        if sort:
+            out.sort(key=lambda x: x.expiry_date, reverse=sort.startswith("-"))
         return out[offset: offset + limit]
 
     @app.get("/v1/patents/{patent_id}", tags=["patents"])

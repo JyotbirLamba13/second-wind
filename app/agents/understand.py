@@ -8,7 +8,7 @@ from ..schemas import Understanding
 from .llm import LLM
 
 SYSTEM_TMPL = (
-    "You help a first-time hardware founder search patents. Given a product idea, reply with JSON keys: "
+    "You help a first-time founder or inventor search patents. Given a product idea, reply with JSON keys: "
     "summary (one sentence, plain English), features (3-6 core technical features), "
     "search_terms (8-15 words patents would use, including synonyms and claim-style wording), "
     "industry (2-4 word label), in_dataset (true ONLY if the idea is squarely about {domain}, otherwise false), cpc_hints (up to 3 CPC codes like A47J31 that fit; omit if unsure)."
