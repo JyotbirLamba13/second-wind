@@ -58,9 +58,9 @@ class LLM:
                 r = httpx.post(
                     "https://openrouter.ai/api/v1/chat/completions",
                     headers={"Authorization": f"Bearer {self.openrouter_key}"},
-                    json={"model": model, "max_tokens": max_tokens,
+                    json={"model": model, "max_tokens": max_tokens, "reasoning": {"enabled": False},  # reasoning eats the token budget and truncates the JSON
                           "messages": [{"role": "system", "content": system}, {"role": "user", "content": prompt}]},
-                    timeout=30,
+                    timeout=25,
                 )
                 r.raise_for_status()
                 body = r.json()

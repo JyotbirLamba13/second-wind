@@ -26,6 +26,7 @@ class PatentSummary(BaseModel):
     expiry_date: date
     lapse_date: Optional[date] = None
     lapse_reason: Optional[str] = None
+    fee_data: bool = Field(True, description="False means in_force is assumed because no maintenance fee data is loaded")
     cited_by_count: int
     url: str
     synthetic: bool = False
@@ -68,6 +69,14 @@ class Opportunity(BaseModel):
     citations: list[Citation]
 
 
+class Understanding(BaseModel):
+    summary: str
+    features: list[str]
+    search_terms: list[str]
+    cpc_hints: list[str]
+    source: Literal["llm", "none"] = Field(description="'none' means the LLM was unavailable and the raw idea was used")
+
+
 class CheckRequest(BaseModel):
     idea: str = Field(min_length=20, description="Plain-language description of the product or invention")
     cpc_hints: Optional[list[str]] = None
@@ -107,6 +116,7 @@ class CheckReport(BaseModel):
     kind: Literal["check"] = "check"
     created_at: str
     idea: str
+    understanding: Understanding
     triage: Level
     novelty_level: Level
     blocking_level: Level

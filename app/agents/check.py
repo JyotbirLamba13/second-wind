@@ -14,6 +14,7 @@ from ..retrieval import tokenize
 from ..store import PatentStore
 from .common import summarize
 from .llm import LLM
+from .understand import expanded_query, understand_idea
 
 DISCLAIMER = (
     "This is automated research and triage, not a legal opinion on patentability or freedom to operate. "
@@ -33,12 +34,15 @@ def _cite(store: PatentStore, pid: str, field: str = "claim 1") -> Citation:
 def run_check(req: CheckRequest, store: PatentStore, settings: Settings, llm: LLM) -> CheckReport:
     t0 = time.perf_counter()
     idx = store.index
-    hits = idx.search(req.idea, k=15, mode="hybrid", cpc_hints=req.cpc_hints)
+    understanding = understand_idea(req.idea, llm if req.use_llm else None)
+    query = expanded_query(req.idea, understanding)
+    cpc_hints = req.cpc_hints or understanding.cpc_hints or None
+    hits = idx.search(query, k=25, mode="hybrid", cpc_hints=cpc_hints)
 
     prior_art, blockers = [], []
     for h in hits:
-        claim_cov, matched = idx.claim_coverage(h.id, req.idea)
-        cov = max(claim_cov, idx.idea_coverage(h.id, req.idea))
+        claim_cov, matched = idx.claim_coverage(h.id, query)
+        cov = max(claim_cov, idx.idea_coverage(h.id, query))
         if cov < 0.15:
             continue
         st = store.status[h.id].status
@@ -100,7 +104,7 @@ def run_check(req: CheckRequest, store: PatentStore, settings: Settings, llm: LL
     }[triage]
 
     return CheckReport(
-        id=uuid.uuid4().hex[:12], created_at=datetime.now(timezone.utc).isoformat(), idea=req.idea,
+        id=uuid.uuid4().hex[:12], created_at=datetime.now(timezone.utc).isoformat(), idea=req.idea, understanding=understanding,
         triage=triage, novelty_level=novelty, blocking_level=blocking, summary=summary, claims=claims,
         prior_art=prior_art, blockers=blockers, riskiest_assumption=assumption,
         attorney_handoff=handoff, attorney_handoff_reason=handoff_reason,

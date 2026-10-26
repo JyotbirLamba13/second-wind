@@ -1,10 +1,11 @@
 """Patent record model and legal-status derivation (US utility patents)."""
 from __future__ import annotations
 
+import re
 from datetime import date
 from typing import Literal, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 # Maintenance fees fall due at 3.5, 7.5 and 11.5 years after grant, with a 6 month grace period.
 FEE_YEARS = (3.5, 7.5, 11.5)
@@ -32,9 +33,19 @@ class Patent(BaseModel):
     family_ids: list[str] = Field(default_factory=list)
     cites: list[str] = Field(default_factory=list)
     cited_by_count: int = 0
-    maintenance: list[MaintenanceEvent] = Field(default_factory=list)
+    # None means no fee data was available, so lapse can't be inferred. [] means fee data exists with no payments.
+    maintenance: Optional[list[MaintenanceEvent]] = None
     url: Optional[str] = None
     synthetic: bool = False
+
+    @field_validator("claims")
+    @classmethod
+    def _clean_claims(cls, v: list[str]) -> list[str]:
+        """Drop preamble lines like 'What is claimed is:' and collapse whitespace."""
+        out = [re.sub(r"\s+", " ", c).strip() for c in v]
+        while out and not re.match(r"\d+\s*[\.\)]", out[0]):
+            out.pop(0)
+        return out
 
     @property
     def source_url(self) -> str:
@@ -60,15 +71,17 @@ class LegalStatus(BaseModel):
     expiry_date: date
     lapse_date: Optional[date] = None
     lapse_reason: Optional[str] = None
+    fee_data: bool = True
 
 
 def legal_status(p: Patent, today: Optional[date] = None) -> LegalStatus:
     """A patent lapses when a fee is unpaid past its grace window, and expires 20 years from filing."""
     today = today or date.today()
     expiry = _add_years(p.filing_date, TERM_YEARS)
-    paid = {round(m.year, 1): m.paid for m in p.maintenance}
+    fee_data = p.maintenance is not None
+    paid = {round(m.year, 1): m.paid for m in p.maintenance or []}
     lapse_date = lapse_reason = None
-    for stage in FEE_YEARS:
+    for stage in FEE_YEARS if fee_data else ():
         window_end = _add_years(p.grant_date, stage + GRACE_YEARS)
         if window_end > today:
             break  # later stages are not yet due
@@ -80,5 +93,5 @@ def legal_status(p: Patent, today: Optional[date] = None) -> LegalStatus:
         status: Status = "lapsed" if lapse_date <= today else "in_force"
         return LegalStatus(status=status, expiry_date=expiry, lapse_date=lapse_date, lapse_reason=lapse_reason)
     if expiry <= today:
-        return LegalStatus(status="expired", expiry_date=expiry)
-    return LegalStatus(status="in_force", expiry_date=expiry)
+        return LegalStatus(status="expired", expiry_date=expiry, fee_data=fee_data)
+    return LegalStatus(status="in_force", expiry_date=expiry, fee_data=fee_data)

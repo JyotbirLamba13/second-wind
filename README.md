@@ -50,7 +50,20 @@ curl -s localhost:8000/v1/check -H 'content-type: application/json' \
 - **Scout** (`app/agents/scout.py`): score 0-100 from forward citations (30%), family breadth (15%), clearance from similar in-force patents (30%), and new activity in the class since the lapse (25%).
 - **LLM (optional)**: set `OPENROUTER_API_KEY` (and optionally `OPENROUTER_MODELS` (comma-separated fallback chain, default all free: Nemotron 3 Ultra, Gemma 4 31B, then the OpenRouter free router)) in `.env`, or `ANTHROPIC_API_KEY`. If the call fails, for example with no credits, the deterministic text is used. With a key set, the riskiest-assumption text is rewritten by the model, restricted to patent ids already found. Without a key, deterministic templates are used and everything works.
 
-## Data
+## Real data (Google Patents on BigQuery)
+
+`scripts/load_bigquery.py` pulls US utility patents for a CPC prefix from Google Patents Public Data into the JSONL format. BigQuery bills whole columns, so a pull costs about 170 GB of scan no matter how narrow the CPC (check with `--dry-run` first; the free tier is 1 TB a month). Run it once, then serve the file.
+
+```bash
+gcloud auth application-default login
+python -m scripts.load_bigquery --project YOUR_PROJECT --cpc A47J31 --dry-run
+python -m scripts.load_bigquery --project YOUR_PROJECT --cpc A47J31 --max-gb 200 --out data/patents.jsonl
+SECOND_LIFE_DATA=data/patents.jsonl uvicorn app.main:app
+```
+
+The prototype uses A47J31 (coffee makers): 5,444 patents. The file is not committed. Google's dataset has no maintenance fee data, so `maintenance` is null, patents are `in_force` unless past the 20-year term, and responses carry `fee_data: false` to say the status is assumed. Scout can only surface expired patents until fee data is added.
+
+## Data (synthetic sample)
 
 The bundled `data/sample_patents.jsonl` is **synthetic** (ids `SL-S###`, `synthetic: true`) so the API runs out of the box. It is not real patent data. To serve real data, build a JSONL matching `app.patents.Patent` from public USPTO sources (grants, citations, CPC, maintenance fee events), validate with `python -m scripts.ingest file.jsonl`, and set `SECOND_LIFE_DATA`.
 
