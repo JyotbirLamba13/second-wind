@@ -18,7 +18,7 @@ from .mock import in_live_domain, mock_store
 from .understand import expanded_query, understand_idea
 
 DISCLAIMER = (
-    "This is automated research and triage, not a legal opinion on patentability or freedom to operate. "
+    "This is automated first-pass research, not a legal opinion on patentability or freedom to operate. "
     "Consult a registered patent attorney before relying on it."
 )
 _RANK = {"green": 0, "yellow": 1, "red": 2}

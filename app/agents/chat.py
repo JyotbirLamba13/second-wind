@@ -31,7 +31,7 @@ def _context(r: CheckReport) -> dict:
 def intro(r: CheckReport) -> str:
     n = len(r.blockers)
     text = (f"I read your idea as: {r.understanding.summary} "
-            f"Triage is {r.triage.upper()}: {r.summary} "
+            f"Result: {r.triage.capitalize()}. {r.summary} "
             f"I found {n} possible blocking patent{'s' if n != 1 else ''} and {len(r.prior_art)} close prior-art patents. "
             f"Ask me why something was flagged, or tell me how you would change the design and I will re-check.")
     return text + (f" Note: {r.data_note}" if r.data_note else "")
@@ -62,5 +62,5 @@ def handle_chat(req: ChatRequest, load_report: Callable[[str], Optional[CheckRep
         return ChatResponse(action="ask", reply=("I can explain any patent in the report, or re-check if you describe a change "
                                                  "to your design in a sentence or two."))
     report = run(CheckRequest(idea=idea))
-    shift = "" if report.triage == prior.triage else f"Triage moved from {prior.triage.upper()} to {report.triage.upper()}. "
+    shift = "" if report.triage == prior.triage else f"The result moved from {prior.triage.capitalize()} to {report.triage.capitalize()}. "
     return ChatResponse(action="recheck", reply=shift + intro(report), report=report)

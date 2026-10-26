@@ -123,7 +123,7 @@ export function LegalNotice({ compact = false }: { compact?: boolean }) {
   return (
     <div className="notice legal">
       <div>
-        <strong>Research triage, not legal advice.</strong>{" "}
+        <strong>First-pass research, not legal advice.</strong>{" "}
         {compact
           ? "Results cover only the indexed corpus. Consult a registered patent attorney before relying on them."
           : "Second Life searches a limited patent corpus and scores word overlap with claims. It cannot tell you whether you can patent your idea or whether a product infringes. Before you file, launch or invest, have a registered patent attorney or agent review your situation."}{" "}

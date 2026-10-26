@@ -19,7 +19,7 @@ const STEPS = [
     body: "Each candidate's first independent claim is compared term by term with your idea, weighted by how distinctive each term is.",
   },
   {
-    title: "Triage and hand off",
+    title: "Rate and hand off",
     body: "You get green, yellow or red for novelty and for blocking risk, the riskiest assumption as a two-week test, and a packet for an attorney.",
   },
 ];
@@ -79,7 +79,7 @@ export function Landing() {
             <div className="modes">
               <div className="mode">
                 <h3>Idea check</h3>
-                <p>Describe a product and get a triage report you can act on the same day.</p>
+                <p>Describe a product and get a report you can act on the same day.</p>
                 <ul>
                   <li>Novelty and blocking-risk ratings</li>
                   <li>Possible blockers with the terms that overlap</li>
@@ -143,7 +143,7 @@ export function Landing() {
                 <p className="who">Program directors, venture partners, mentors</p>
                 <p>Screen every cohort idea for obvious patent exposure before you commit mentoring hours or capital.</p>
                 <ul>
-                  <li>The same triage method for every team</li>
+                  <li>The same method for every team</li>
                   <li>Packets mentors can review in minutes</li>
                 </ul>
               </div>

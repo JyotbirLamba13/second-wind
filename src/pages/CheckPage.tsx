@@ -27,7 +27,7 @@ const EXAMPLES = [
 const GREETING: ChatMessage = {
   role: "assistant",
   content:
-    "Describe your product in a sentence or two: what it does and how it works. I'll search the patent corpus and triage it. After that, ask me about any result, or tell me how you'd change the design and I'll re-check.",
+    "Describe your product in a sentence or two: what it does and how it works. I'll search the patent corpus and rate how much it overlaps with existing patents. After that, ask me about any result, or tell me how you'd change the design and I'll re-check.",
 };
 
 export function CheckPage() {
@@ -99,7 +99,7 @@ export function CheckPage() {
         <div>
           <h1>Idea check</h1>
           <p>
-            Triage a product idea for novelty and blocking patents. A check usually takes under a minute; ideas in a new industry can take longer
+            Check a product idea for novelty and blocking patents. A check usually takes under a minute; ideas in a new industry can take longer
             the first time while demo data is prepared.
           </p>
         </div>

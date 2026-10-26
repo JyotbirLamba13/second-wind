@@ -70,7 +70,7 @@ export function buildPacket(r: CheckReport): Document {
       children: [new TextRun({ text: "Prior-art packet", color: INK })],
     }),
     p([new TextRun({ text: `Second Life report ${r.id}, generated ${created}`, color: MUTED })], { after: 200 }),
-    notice("Research triage, not legal advice.", r.disclaimer, STAMP),
+    notice("First-pass research, not legal advice.", r.disclaimer, STAMP),
     ...(r.data_mode === "mock" ? [notice("Demo data.", r.data_note, LEVEL_COLOR.yellow)] : []),
 
     h("The idea"),
@@ -82,7 +82,7 @@ export function buildPacket(r: CheckReport): Document {
       ? [p([new TextRun({ text: "Core features: ", bold: true }), new TextRun(r.understanding.features.join("; "))])]
       : []),
 
-    h("Triage"),
+    h("Result"),
     p([
       new TextRun({ text: `Overall: ${r.triage.toUpperCase()}`, bold: true, color: LEVEL_COLOR[r.triage] }),
       new TextRun(`   Novelty: ${cap(r.novelty_level)}   Blocking risk: ${cap(r.blocking_level)}`),
@@ -162,7 +162,7 @@ export function buildPacket(r: CheckReport): Document {
   return new Document({
     creator: "Second Life",
     title: `Prior-art packet ${r.id}`,
-    description: "Automated patent research triage. Not legal advice.",
+    description: "Automated first-pass patent research. Not legal advice.",
     styles: {
       default: { document: { run: { font: "Calibri", size: 22, color: INK } } },
       paragraphStyles: [

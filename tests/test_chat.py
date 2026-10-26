@@ -66,7 +66,7 @@ def test_idea_in_live_domain_uses_real_data(demo):
     c, _ = demo
     r = chat(c, IDEA)
     assert r["action"] == "check" and r["report"]["data_mode"] == "live"
-    assert r["report"]["triage"] == "red" and "RED" in r["reply"]
+    assert r["report"]["triage"] == "red" and "Result: Red." in r["reply"]
     assert r["report"]["blockers"][0]["patent"]["url"].startswith("https://patents.google.com/")
 
 

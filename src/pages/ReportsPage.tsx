@@ -29,7 +29,7 @@ export function ReportsPage() {
             <table className="data">
               <thead>
                 <tr>
-                  <th>Triage</th>
+                  <th>Result</th>
                   <th>Idea</th>
                   <th>Data</th>
                   <th className="num">Blockers</th>

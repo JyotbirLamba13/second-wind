@@ -13,7 +13,7 @@ const ServiceCtx = createContext<Service>({ health: null, stats: null, down: fal
 export const useService = () => useContext(ServiceCtx);
 
 const NAV = [
-  { group: "Triage", items: [
+  { group: "Check", items: [
     { to: "/app/check", label: "Idea check", icon: Icons.check },
     { to: "/app/expiry", label: "Patent expiry", icon: Icons.expiry },
     { to: "/app/scout", label: "Opportunity scout", icon: Icons.scout },
@@ -47,7 +47,7 @@ function AckGate({ onDone }: { onDone: () => void }) {
           Second Life is a first layer of patent research. Please read this once.
         </p>
         <ul>
-          <li>Results are automated triage over a limited corpus, not a legal opinion on patentability, infringement or freedom to operate.</li>
+          <li>Results are automated first-pass research over a limited corpus, not a legal opinion on patentability, infringement or freedom to operate.</li>
           <li>Ratings compare words in your description with patent claims. They can miss relevant patents and flag irrelevant ones.</li>
           <li>Ideas outside the live coffee-maker class use AI-generated mock patents, which are labeled and must not be relied on.</li>
           <li>Talk to a registered patent attorney or agent before you file, launch or invest.</li>
@@ -110,7 +110,7 @@ export function AppShell() {
             </div>
           ))}
           <div className="side-foot">
-            <p>Research triage only. Not legal advice.</p>
+            <p>First-pass research only. Not legal advice.</p>
             <p style={{ marginTop: 6 }}>
               <Link to="/legal">Limits of this tool</Link>
             </p>

@@ -6,7 +6,7 @@ export function Legal() {
     <div className="site">
       <SiteNav />
       <main className="doc">
-        <h1>Research triage, not legal advice</h1>
+        <h1>First-pass research, not legal advice</h1>
         <p>
           Second Life is a research tool. It helps you find patents that look similar to an idea and organizes them so you can have a
           better-informed conversation with a patent professional. It is not a law firm, does not employ attorneys to review your results, and

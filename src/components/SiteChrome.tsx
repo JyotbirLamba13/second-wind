@@ -28,7 +28,7 @@ export function SiteFooter() {
       <div className="wrap">
         <div>
           <p>
-            <strong style={{ color: "var(--ink)" }}>Second Life provides automated patent research and triage, not legal advice.</strong> Results
+            <strong style={{ color: "var(--ink)" }}>Second Life provides automated first-pass patent research, not legal advice.</strong> Results
             cover only the indexed corpus and can be incomplete or wrong. No attorney-client relationship is created by using this service.
             Consult a registered patent attorney or agent before making decisions.
           </p>
