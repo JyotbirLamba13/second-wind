@@ -48,7 +48,7 @@ curl -s localhost:8000/v1/check -H 'content-type: application/json' \
 - **Retrieval** (`app/retrieval.py`): BM25, hashed TF-IDF embeddings, CPC-class matching, and reciprocal-rank-fusion hybrid. All offline, no model downloads.
 - **Check** (`app/agents/check.py`): hybrid search, then idf-weighted overlap between the idea and each patent's claim 1 and text. In-force patents above a threshold become possible blockers; overall triage is the worse of novelty and blocking. Thresholds live in `app/config.py`.
 - **Scout** (`app/agents/scout.py`): score 0-100 from forward citations (30%), family breadth (15%), clearance from similar in-force patents (30%), and new activity in the class since the lapse (25%).
-- **LLM (optional)**: set `ANTHROPIC_API_KEY` and the riskiest-assumption text is rewritten by the model, restricted to patent ids already found. Without a key, deterministic templates are used and everything works.
+- **LLM (optional)**: set `OPENROUTER_API_KEY` (and optionally `OPENROUTER_MODEL`) in `.env`, or `ANTHROPIC_API_KEY`. If the call fails, for example with no credits, the deterministic text is used. With a key set, and the riskiest-assumption text is rewritten by the model, restricted to patent ids already found. Without a key, deterministic templates are used and everything works.
 
 ## Data
 

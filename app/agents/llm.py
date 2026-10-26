@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import json
 import re
+
+import httpx
 from typing import Optional
 
 from ..config import Settings
@@ -14,6 +16,8 @@ class LLM:
     def __init__(self, settings: Settings):
         self.model = settings.model
         self.client = None
+        self.openrouter_key = settings.openrouter_key
+        self.openrouter_model = settings.openrouter_model
         self.input_tokens = 0
         self.output_tokens = 0
         if settings.anthropic_key:
@@ -26,23 +30,50 @@ class LLM:
 
     @property
     def enabled(self) -> bool:
-        return self.client is not None
+        return bool(self.openrouter_key) or self.client is not None
 
     def json_call(self, system: str, prompt: str, max_tokens: int = 700) -> Optional[dict]:
+        system = f"{system}\n{_DISCLAIMER}\nReply with one JSON object and nothing else."
+        if self.openrouter_key:
+            return self._openrouter(system, prompt, max_tokens)
         if not self.client:
             return None
         try:
             msg = self.client.messages.create(
                 model=self.model,
                 max_tokens=max_tokens,
-                system=f"{system}\n{_DISCLAIMER}\nReply with one JSON object and nothing else.",
+                system=system,
                 messages=[{"role": "user", "content": prompt}],
             )
         except Exception:
             return None
         self.input_tokens += msg.usage.input_tokens
         self.output_tokens += msg.usage.output_tokens
-        text = "".join(b.text for b in msg.content if getattr(b, "type", "") == "text")
+        return self._parse("".join(b.text for b in msg.content if getattr(b, "type", "") == "text"))
+
+    def _openrouter(self, system: str, prompt: str, max_tokens: int) -> Optional[dict]:
+        try:
+            r = httpx.post(
+                "https://openrouter.ai/api/v1/chat/completions",
+                headers={"Authorization": f"Bearer {self.openrouter_key}"},
+                json={"model": self.openrouter_model, "max_tokens": max_tokens,
+                      "messages": [{"role": "system", "content": system}, {"role": "user", "content": prompt}]},
+                timeout=30,
+            )
+            r.raise_for_status()
+            body = r.json()
+        except Exception:
+            return None
+        usage = body.get("usage", {})
+        self.input_tokens += usage.get("prompt_tokens", 0)
+        self.output_tokens += usage.get("completion_tokens", 0)
+        try:
+            return self._parse(body["choices"][0]["message"]["content"])
+        except (KeyError, IndexError):
+            return None
+
+    @staticmethod
+    def _parse(text: str) -> Optional[dict]:
         m = re.search(r"\{.*\}", text, re.S)
         try:
             return json.loads(m.group(0)) if m else None

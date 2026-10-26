@@ -1,5 +1,18 @@
 import os
+from pathlib import Path
 from dataclasses import dataclass, field
+
+
+def _load_dotenv(path: str = ".env") -> None:
+    p = Path(path)
+    if p.exists():
+        for line in p.read_text().splitlines():
+            if "=" in line and not line.lstrip().startswith("#"):
+                k, v = line.split("=", 1)
+                os.environ.setdefault(k.strip(), v.strip())
+
+
+_load_dotenv()
 
 
 @dataclass(frozen=True)
@@ -8,6 +21,8 @@ class Settings:
     db_path: str = field(default_factory=lambda: os.getenv("SECOND_LIFE_DB", "second_life.db"))
     model: str = field(default_factory=lambda: os.getenv("SECOND_LIFE_MODEL", "claude-sonnet-5-5"))
     anthropic_key: str = field(default_factory=lambda: os.getenv("ANTHROPIC_API_KEY", ""))
+    openrouter_key: str = field(default_factory=lambda: os.getenv("OPENROUTER_API_KEY", ""))
+    openrouter_model: str = field(default_factory=lambda: os.getenv("OPENROUTER_MODEL", "anthropic/claude-sonnet-4.5"))
     cors_origins: tuple = field(
         default_factory=lambda: tuple(o.strip() for o in os.getenv("CORS_ORIGINS", "*").split(",") if o.strip())
     )
