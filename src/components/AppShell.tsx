@@ -141,7 +141,7 @@ export function AppShell() {
                   </span>
                 </>
               ) : (
-                <span>Connecting… first load can take a few seconds</span>
+                <span>Starting the research service… this can take up to 30 seconds after a quiet spell</span>
               )}
             </span>
             <Link to="/legal" className="legal-pill">
