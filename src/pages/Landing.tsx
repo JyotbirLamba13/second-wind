@@ -35,9 +35,9 @@ export function Landing() {
 
   return (
     <div className="site">
-      <SiteNav />
+      <SiteNav dark />
       <main>
-        <section className="hero">
+        <section className="hero on-dark">
           <div className="wrap">
             <div>
               <h1>See which patents stand in your way before you build.</h1>
@@ -58,7 +58,9 @@ export function Landing() {
                 patent attorney.
               </p>
             </div>
-            <HeroFigure />
+            <div className="on-light">
+              <HeroFigure />
+            </div>
           </div>
         </section>
 

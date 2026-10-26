@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
 import { Brand, USPTO_PRO_BONO, USPTO_ROSTER } from "./ui";
 
-export function SiteNav() {
+export function SiteNav({ dark = false }: { dark?: boolean }) {
   return (
-    <header className="site-nav">
+    <header className={`site-nav ${dark ? "on-dark" : ""}`}>
       <div className="wrap">
         <Brand />
         <nav aria-label="Site">

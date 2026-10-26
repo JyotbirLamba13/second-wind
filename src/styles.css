@@ -116,7 +116,39 @@ button.chip { cursor: pointer; }
 .site-nav nav a:hover { color: var(--ink); }
 .site-nav .spacer { flex: 1; }
 
-.hero { padding: 72px 0 56px; }
+/* Dark band for the landing hero and nav: tokens are re-pointed, so components inside keep working */
+.on-dark {
+  --ink: #eef1f8;
+  --ink-2: #c3cae0;
+  --ink-3: #98a2c0;
+  --paper: #141c33;
+  --rule: rgba(255, 255, 255, 0.28);
+  --rule-soft: rgba(255, 255, 255, 0.12);
+  --stamp: #aab4ff;
+  --stamp-ink: #10183a;
+  color: var(--ink);
+}
+.on-light {
+  --ink: #1c2533;
+  --ink-2: #4a5566;
+  --ink-3: #6e7887;
+  --paper: #f4f5f2;
+  --rule: #c9cdd2;
+  --rule-soft: #e2e5e8;
+  --stamp: #2b3bb8;
+  --stamp-ink: #ffffff;
+  color: var(--ink);
+}
+.site-nav.on-dark { background: #141c33; border-bottom-color: rgba(255, 255, 255, 0.08); }
+.hero.on-dark {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(closest-side, rgba(199, 206, 255, 0.30) 0%, rgba(139, 151, 242, 0.26) 26%, rgba(43, 59, 184, 0.20) 52%, rgba(15, 22, 48, 0) 78%) 88% 30% / 900px 700px no-repeat,
+    radial-gradient(closest-side, rgba(190, 200, 255, 0.18), rgba(76, 92, 214, 0.12) 42%, rgba(15, 22, 48, 0) 74%) 6% 95% / 800px 600px no-repeat,
+    radial-gradient(120% 140% at 50% -10%, #263266 0%, #182148 65%, #10183a 100%);
+}
+.hero { padding: 88px 0 80px; }
 .hero .wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 56px; align-items: center; }
 .hero h1 { font-size: clamp(2.4rem, 4.6vw, 3.6rem); font-weight: 600; max-width: 17ch; }
 .hero .lede { margin-top: 20px; font-size: 1.1875rem; color: var(--ink-2); max-width: 46ch; }
