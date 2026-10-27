@@ -210,3 +210,13 @@ def test_strong_live_match_stays_on_real_data_when_model_says_out_of_domain(tmp_
                              "search_terms": [], "cpc_hints": ["A01B1"]}
         r = chat(c, IDEA)["report"]
     assert r["data_mode"] == "live" and "real data is used" in r["data_note"]
+
+
+def test_ai_off_keeps_every_turn_away_from_the_model(demo):
+    c, llm = demo
+    first = c.post("/v1/chat", json={"messages": [{"role": "user", "content": BOTTLE}], "use_llm": False}).json()
+    assert first["action"] == "check" and first["report"]["understanding"]["source"] == "none"
+    r = c.post("/v1/chat", json={"messages": [{"role": "user", "content": BOTTLE}, {"role": "user", "content": "why was that flagged?"}],
+                                 "report_id": first["report"]["id"], "use_llm": False}).json()
+    assert r["action"] == "answer" and r["source"] == "rules"
+    assert llm.calls == []

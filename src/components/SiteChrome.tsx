@@ -11,6 +11,7 @@ export function SiteNav({ dark = false }: { dark?: boolean }) {
           <a href="/#how">How it works</a>
           <a href="/#teams">For teams</a>
           <a href="/#coverage">Coverage</a>
+          <a href="/#privacy">Privacy</a>
           <a href="/#plans">Plans</a>
         </nav>
         <span className="spacer" />

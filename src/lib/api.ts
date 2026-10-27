@@ -198,7 +198,7 @@ export const api = {
     call<SearchHit[]>("/v1/search", post(body)),
   scout: (body: { cpc_prefixes?: string[]; limit: number; statuses: ("lapsed" | "expired")[] }) =>
     call<Opportunity[]>("/v1/scout", post(body)),
-  chat: (messages: ChatMessage[], report: CheckReport | null) =>
-    call<ChatResponse>("/v1/chat", post({ messages, report_id: report?.id ?? null, report })),
+  chat: (messages: ChatMessage[], report: CheckReport | null, useLlm = true) =>
+    call<ChatResponse>("/v1/chat", post({ messages, report_id: report?.id ?? null, report, use_llm: useLlm })),
   packet: (report: CheckReport) => call<string>("/v1/packet", post(report), "text"),
 };

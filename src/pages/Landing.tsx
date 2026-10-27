@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { HeroFigure } from "../components/HeroFigure";
+import { HeroOrbit } from "../components/HeroOrbit";
 import { USPTO_CLINICS, USPTO_PRO_BONO, USPTO_ROSTER } from "../components/ui";
 import { SiteFooter, SiteNav } from "../components/SiteChrome";
 import { api, type Stats } from "../lib/api";
@@ -28,6 +28,30 @@ const LICENSE_TIERS = [
   { name: "Starter", price: 3000, reports: 50, seats: 15 },
   { name: "Standard", price: 7500, reports: 150, seats: 40 },
   { name: "Large", price: 15000, reports: 500, seats: 100 },
+];
+
+const TRUST_MARKS = [
+  { label: "No account needed", icon: "M12 12a4 4 0 100-8 4 4 0 000 8zM4 20c1.5-3.5 4.5-5 8-5s6.5 1.5 8 5" },
+  { label: "Saved in your browser", icon: "M3 5h18v11H3zM8 20h8M12 16v4" },
+  { label: "AI is your choice", icon: "M7 8h10a4 4 0 010 8H7a4 4 0 010-8zM7 14a2 2 0 100-4 2 2 0 000 4z" },
+  { label: "Public patent data", icon: "M6 3h9l4 4v14H6zM15 3v4h4M9 12h7M9 16h7" },
+];
+
+const TRUST_CARDS = [
+  { title: "Encrypted in transit", body: "Every request to Second Wind travels over HTTPS." },
+  {
+    title: "Kept in your browser",
+    body: "Saved reports live in your browser, and you can delete them anytime. The server keeps only a temporary working copy, cleared when it restarts.",
+  },
+  {
+    title: "AI off keeps it private",
+    body: "Switch AI off in the workspace and the check runs on Second Wind's own search and scoring. Your idea never reaches an AI model.",
+  },
+  {
+    title: "When AI is on",
+    body: "Your idea text goes to an AI model through OpenRouter. Free model providers may log prompts, so switch AI off for anything confidential.",
+  },
+  { title: "No ad trackers", body: "No analytics or advertising scripts run on the site. Fonts load from Google Fonts." },
 ];
 
 export function Landing() {
@@ -64,9 +88,7 @@ export function Landing() {
                 patent attorney.
               </p>
             </div>
-            <div className="on-light">
-              <HeroFigure />
-            </div>
+            <HeroOrbit />
           </div>
         </section>
 
@@ -223,6 +245,40 @@ export function Landing() {
                 </p>
               </div>
             </div>
+          </div>
+        </section>
+
+        <section className="section" id="privacy">
+          <div className="wrap">
+            <h2>You decide where your idea goes</h2>
+            <p className="intro">An idea you haven't filed yet is confidential. Here is exactly what Second Wind does with yours.</p>
+            <ul className="trust-marks">
+              {TRUST_MARKS.map((m) => (
+                <li key={m.label}>
+                  <span className="seal">
+                    <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true">
+                      <path d={m.icon} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </span>
+                  {m.label}
+                </li>
+              ))}
+            </ul>
+            <div className="trust-cards">
+              {TRUST_CARDS.map((c) => (
+                <div key={c.title}>
+                  <h3>{c.title}</h3>
+                  <p>{c.body}</p>
+                </div>
+              ))}
+            </div>
+            <p className="trust-foot">
+              <span className="muted">
+                Planned for institutional licenses: single sign-on, a data processing agreement, and AI providers that don't keep or train on
+                prompts.
+              </span>
+              <Link to="/legal">How the AI is kept in check</Link>
+            </p>
           </div>
         </section>
 

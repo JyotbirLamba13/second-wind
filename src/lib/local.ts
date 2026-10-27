@@ -1,9 +1,10 @@
-// Per-browser conveniences: the legal acknowledgement and saved reports.
+// Per-browser conveniences: the legal acknowledgement, the AI preference and saved reports.
 // Every access is guarded because storage can be blocked (private windows, previews).
 import type { CheckReport } from "./api";
 
 const ACK = "sl.ack.v1";
 const REPORTS = "sl.reports.v1";
+const AI = "sw.ai.v1";
 
 function read<T>(key: string, fallback: T): T {
   try {
@@ -24,6 +25,9 @@ function write(key: string, value: unknown) {
 
 export const hasAcknowledged = () => read<string | null>(ACK, null) !== null;
 export const acknowledge = () => write(ACK, new Date().toISOString());
+
+export const aiPreferred = () => read<boolean>(AI, true);
+export const preferAi = (on: boolean) => write(AI, on);
 
 export const savedReports = () => read<CheckReport[]>(REPORTS, []);
 

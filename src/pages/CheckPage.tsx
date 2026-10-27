@@ -34,7 +34,7 @@ const GREETING: Msg = {
 
 export function CheckPage() {
   const [params, setParams] = useSearchParams();
-  const { health } = useService();
+  const { ai } = useService();
   const [messages, setMessages] = useState<Msg[]>([GREETING]);
   const [report, setReport] = useState<CheckReport | null>(null);
   const [draft, setDraft] = useState("");
@@ -72,7 +72,7 @@ export function CheckPage() {
     setLastSent(content);
     try {
       // The greeting is UI copy, not part of the conversation the API sees.
-      const res = await api.chat(next.slice(1).slice(-30).map(({ role, content }) => ({ role, content })), report);
+      const res = await api.chat(next.slice(1).slice(-30).map(({ role, content }) => ({ role, content })), report, ai);
       setMessages([...next, { role: "assistant", content: res.reply, source: res.action === "answer" ? res.source ?? "rules" : undefined }]);
       if (res.report) {
         setReport(res.report);
@@ -159,7 +159,7 @@ export function CheckPage() {
             />
             <div className="row">
               <span className="faint small">
-                {health && !health.llm_enabled ? "AI is off: follow-ups longer than a sentence re-check the design." : "Enter to send, Shift+Enter for a new line"}
+                {!ai ? "AI is off: follow-ups longer than a sentence re-check the design." : "Enter to send, Shift+Enter for a new line"}
               </span>
               <button className="btn sm" disabled={busy || draft.trim().length === 0}>
                 {report ? "Send" : "Check idea"}

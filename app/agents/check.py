@@ -1,6 +1,7 @@
 """Check mode: idea in, novelty and blocking-patent triage report out."""
 from __future__ import annotations
 
+import html
 import json
 import time
 import uuid
@@ -24,6 +25,11 @@ DISCLAIMER = (
 )
 _RANK = {"green": 0, "yellow": 1, "red": 2}
 
+
+
+def _name(p) -> str:
+    """A patent as people read it: its title first, the number after."""
+    return f"{html.unescape(p.title).strip()} ({p.id})" if p.title else p.id
 
 def _level(v: float, yellow: float, red: float) -> Level:
     return "red" if v >= red else "yellow" if v >= yellow else "green"
@@ -97,19 +103,19 @@ def run_check(req: CheckRequest, store: PatentStore, settings: Settings, llm: LL
     if prior_art:
         a = prior_art[0]
         claims.append(ReportClaim(
-            text=f"Closest prior art is {a.patent.id} ({a.patent.title}), {a.patent.status.replace('_', ' ')}, "
+            text=f"Closest prior art is {_name(a.patent)}, {a.patent.status.replace('_', ' ')}, "
                  f"overlapping {a.claim_coverage:.0%} of claim 1 terms.",
             citations=[_cite(store, a.patent.id)]))
     else:
         claims.append(ReportClaim(text="No patent in the indexed corpus overlaps the idea meaningfully.", citations=[]))
     for b in blockers[:3]:
         claims.append(ReportClaim(
-            text=f"{b.patent.id} is in force until {b.patent.expiry_date} and may block ({b.level}).",
+            text=f"{_name(b.patent)} is in force until {b.patent.expiry_date} and may block ({b.level}).",
             citations=[_cite(store, b.patent.id)]))
     free = [a for a in prior_art if a.patent.status != "in_force" and a.claim_coverage >= settings.novelty_yellow]
     for a in free[:2]:
         claims.append(ReportClaim(
-            text=f"{a.patent.id} is {a.patent.status.replace('_', ' ')}, so its own claims no longer block anyone, though in-force patents may still cover "
+            text=f"{_name(a.patent)} is {a.patent.status.replace('_', ' ')}, so its own claims no longer block anyone, though in-force patents may still cover "
                  f"the same design; it also counts against novelty of the same features.",
             citations=[_cite(store, a.patent.id)]))
 

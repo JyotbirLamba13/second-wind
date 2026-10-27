@@ -90,11 +90,11 @@ def handle_chat(req: ChatRequest, load_report: Callable[[str], Optional[CheckRep
     if prior is None:
         if len(last) < 20:
             return ChatResponse(action="ask", reply="Tell me about your product idea in a sentence or two: what it does and how it works.")
-        report = run(CheckRequest(idea=last))
+        report = run(CheckRequest(idea=last, use_llm=req.use_llm))
         return ChatResponse(action="check", reply=intro(report), report=report)
 
     out = None
-    if llm.enabled:
+    if llm.enabled and req.use_llm:
         convo = [{"role": m.role, "content": m.content} for m in req.messages[-6:]]
         out = llm.json_call(SYSTEM, json.dumps({"report": _context(prior), "conversation": convo}, default=str), max_tokens=600)
     action = out.get("action") if out else None
@@ -116,6 +116,6 @@ def handle_chat(req: ChatRequest, load_report: Callable[[str], Optional[CheckRep
     else:
         return ChatResponse(action="ask", reply=("I can explain any patent in the report, or re-check if you describe a change "
                                                  "to your design in a sentence or two."))
-    report = run(CheckRequest(idea=idea))
+    report = run(CheckRequest(idea=idea, use_llm=req.use_llm))
     shift = "" if report.triage == prior.triage else f"The result moved from {prior.triage.capitalize()} to {report.triage.capitalize()}. "
     return ChatResponse(action="recheck", reply=shift + intro(report), report=report)

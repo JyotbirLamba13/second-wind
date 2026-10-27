@@ -1,15 +1,17 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { api, type Health, type Stats } from "../lib/api";
-import { acknowledge, hasAcknowledged } from "../lib/local";
+import { acknowledge, aiPreferred, hasAcknowledged, preferAi } from "../lib/local";
 import { Brand, Icons } from "./ui";
 
 interface Service {
   health: Health | null;
   stats: Stats | null;
   down: boolean;
+  // AI is used only when the server has a model and the visitor hasn't switched it off.
+  ai: boolean;
 }
-const ServiceCtx = createContext<Service>({ health: null, stats: null, down: false });
+const ServiceCtx = createContext<Service>({ health: null, stats: null, down: false, ai: false });
 export const useService = () => useContext(ServiceCtx);
 
 const NAV = [
@@ -75,7 +77,9 @@ function AckGate({ onDone }: { onDone: () => void }) {
 }
 
 export function AppShell() {
-  const [svc, setSvc] = useState<Service>({ health: null, stats: null, down: false });
+  const [svc, setSvc] = useState<Omit<Service, "ai">>({ health: null, stats: null, down: false });
+  const [aiOn, setAiOn] = useState(aiPreferred());
+  const ai = !!svc.health?.llm_enabled && aiOn;
   const [acked, setAcked] = useState(hasAcknowledged());
   const [menu, setMenu] = useState(false);
   const loc = useLocation();
@@ -92,7 +96,7 @@ export function AppShell() {
   const title = TITLES.find(([p]) => loc.pathname.startsWith(p))?.[1] ?? "Workspace";
 
   return (
-    <ServiceCtx.Provider value={svc}>
+    <ServiceCtx.Provider value={{ ...svc, ai }}>
       <div className="shell">
         <aside className={`side ${menu ? "open" : ""}`} aria-label="Workspace">
           <Brand />
@@ -133,10 +137,26 @@ export function AppShell() {
                     <span className="dot on" />
                     {svc.stats.patents.toLocaleString()} patents, {svc.stats.live_subclasses?.join(", ") || "mixed classes"}
                   </span>
-                  <span title={svc.health?.llm_enabled ? "AI idea reading and follow-up chat are on" : "No AI model configured: idea reading uses your exact words"}>
-                    <span className={`dot ${svc.health?.llm_enabled ? "on" : ""}`} />
-                    AI {svc.health?.llm_enabled ? "on" : "off"}
-                  </span>
+                  {svc.health?.llm_enabled ? (
+                    <button
+                      type="button"
+                      className="ai-toggle"
+                      aria-pressed={ai}
+                      title={ai ? "AI reads your idea and answers follow-ups. Switch off to keep your idea away from any AI model." : "AI is off: your idea never reaches an AI model. Reading and answers use rules only."}
+                      onClick={() => {
+                        preferAi(!aiOn);
+                        setAiOn(!aiOn);
+                      }}
+                    >
+                      <span className={`dot ${ai ? "on" : ""}`} />
+                      AI {ai ? "on" : "off"}
+                    </button>
+                  ) : (
+                    <span title="No AI model configured: idea reading uses your exact words">
+                      <span className="dot" />
+                      AI off
+                    </span>
+                  )}
                 </>
               ) : (
                 <span>Starting the research service… this can take up to 30 seconds after a quiet spell</span>

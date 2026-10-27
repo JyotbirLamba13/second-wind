@@ -233,6 +233,15 @@ button.chip { cursor: pointer; }
 .plan ul { margin: 18px 0 22px; padding-left: 18px; color: var(--ink-2); font-size: 0.9375rem; flex: 1; }
 .plan li + li { margin-top: 6px; }
 
+.trust-marks { list-style: none; margin: 44px 0 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 28px 56px; }
+.trust-marks li { display: grid; justify-items: center; gap: 12px; font-size: 0.9375rem; color: var(--ink); text-align: center; }
+.trust-marks .seal { width: 96px; height: 96px; border-radius: 50%; display: grid; place-items: center; background: var(--sheet); border: 1px solid var(--rule); color: var(--stamp); box-shadow: inset 0 0 0 6px var(--paper); }
+.trust-cards { margin-top: 40px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
+.trust-cards div { background: var(--sheet); border: 1px solid var(--rule-soft); border-radius: var(--r-md); padding: 20px; }
+.trust-cards h3 { font-family: var(--sans); font-size: 1rem; font-weight: 700; }
+.trust-cards p { margin-top: 8px; color: var(--ink-2); font-size: 0.9375rem; }
+.trust-foot { margin-top: 24px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; font-size: 0.9375rem; }
+.trust-foot a { color: var(--stamp); font-weight: 600; }
 .not-list { margin-top: 32px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 40px; }
 .not-list div { padding: 16px 0; border-top: 1px solid var(--rule-soft); }
 .not-list h3 { font-size: 1.05rem; font-family: var(--sans); font-weight: 700; }
@@ -407,6 +416,7 @@ table.data .num { text-align: right; white-space: nowrap; }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 1080px) {
+  .trust-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .check, .pd { grid-template-columns: minmax(0, 1fr); }
   .convo { position: static; height: auto; min-height: 0; }
   .msgs { max-height: 420px; }
@@ -443,6 +453,9 @@ table.data .num { text-align: right; white-space: nowrap; }
   .hbar { grid-template-columns: 80px minmax(0, 1fr) 54px; }
   .legal-strip .wrap { flex-direction: column; align-items: flex-start; gap: 6px; }
   .site-nav .brand img { height: 24px; }
+  .trust-cards { grid-template-columns: minmax(0, 1fr); }
+  .trust-marks { gap: 20px 28px; }
+  .trust-marks .seal { width: 76px; height: 76px; }
   .tiers { padding: 18px 16px; }
 }
 @media (prefers-reduced-motion: reduce) { .side { transition: none; } }
@@ -452,3 +465,53 @@ table.data .num { text-align: right; white-space: nowrap; }
 @keyframes draw { to { stroke-dashoffset: 0; } }
 @media (prefers-reduced-motion: reduce) { .figure .draw { animation: none; stroke-dashoffset: 0; } }
 .nowrap { white-space: nowrap; }
+.ai-toggle { display: inline-flex; align-items: center; background: none; border: 1px solid var(--rule); border-radius: 999px; padding: 2px 10px; color: inherit; font: inherit; cursor: pointer; }
+.ai-toggle:hover { border-color: var(--ink-2); }
+
+/* Hero: the product's tools around the founder's idea */
+.orbit { --accent: #aab4ff; display: grid; gap: 18px; }
+.orbit-map { position: relative; width: 100%; max-width: 470px; aspect-ratio: 1; margin: 0 auto; }
+.orbit-map svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.orbit .ring { fill: none; stroke: rgba(255, 255, 255, 0.14); stroke-width: 0.25; }
+.orbit .spoke { stroke: rgba(255, 255, 255, 0.22); stroke-width: 0.3; stroke-dasharray: 1 1.2; transition: stroke 0.4s; }
+.orbit .spoke.on { stroke: var(--accent); stroke-width: 0.45; animation: flow 1.1s linear infinite; }
+@keyframes flow { to { stroke-dashoffset: -4.4; } }
+.orbit .core {
+  position: absolute; left: 50%; top: 50%; width: 34%; aspect-ratio: 1; transform: translate(-50%, -50%);
+  border-radius: 50%; display: grid; place-items: center; text-align: center;
+  background: radial-gradient(circle at 50% 40%, #2c3a78, #1a2350 70%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.03), 0 0 60px color-mix(in srgb, var(--accent) 35%, transparent);
+  transition: box-shadow 0.5s;
+}
+.orbit .core span { font-family: var(--serif); font-size: clamp(1rem, 2.4vw, 1.45rem); font-weight: 600; color: #fff; }
+.orbit .core::after {
+  content: ""; position: absolute; inset: -1px; border-radius: 50%; border: 1px solid var(--accent);
+  animation: pulse 1.6s ease-out 1 both;
+}
+@keyframes pulse { from { transform: scale(1); opacity: 0.9; } to { transform: scale(1.45); opacity: 0; } }
+.orbit .node {
+  position: absolute; transform: translate(-50%, -50%); white-space: nowrap;
+  padding: 6px 12px; border-radius: 999px; font-size: 0.8125rem; font-weight: 600; text-decoration: none;
+  color: var(--ink); background: rgba(16, 24, 58, 0.82); border: 1px solid rgba(255, 255, 255, 0.18);
+  transition: background 0.4s, color 0.4s, border-color 0.4s, box-shadow 0.4s;
+  animation: node-in 0.5s ease-out both;
+}
+.orbit .node:hover { border-color: rgba(255, 255, 255, 0.5); }
+.orbit .node.on { background: var(--accent); color: #10183a; border-color: var(--accent); box-shadow: 0 0 24px color-mix(in srgb, var(--accent) 55%, transparent); }
+@keyframes node-in { from { opacity: 0; transform: translate(-50%, -50%) scale(0.85); } }
+.orbit-steps { list-style: none; margin: 0 auto; padding: 0; width: 100%; max-width: 470px; display: grid; gap: 2px; }
+.orbit-steps li { border-left: 2px solid rgba(255, 255, 255, 0.12); padding: 4px 0 4px 14px; transition: border-color 0.4s; }
+.orbit-steps li.on { border-left-color: var(--accent); }
+.orbit-steps button { display: flex; align-items: center; gap: 10px; background: none; border: 0; padding: 0; color: var(--ink-3); font: inherit; font-weight: 600; cursor: pointer; text-align: left; }
+.orbit-steps li.on button { color: var(--ink); }
+.orbit-steps .n { width: 22px; height: 22px; flex: none; border-radius: 50%; display: grid; place-items: center; font-size: 0.75rem; border: 1px solid rgba(255, 255, 255, 0.25); color: inherit; }
+.orbit-steps li.on .n { color: #10183a; border-color: transparent; }
+.orbit-steps p { margin: 4px 0 2px 32px; color: var(--ink-2); font-size: 0.9375rem; animation: fade 0.4s ease-out both; }
+@keyframes fade { from { opacity: 0; } }
+@media (max-width: 640px) {
+  .orbit .node { font-size: 0.6875rem; padding: 4px 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .orbit .spoke.on, .orbit .core::after, .orbit .node, .orbit-steps p { animation: none; }
+}
