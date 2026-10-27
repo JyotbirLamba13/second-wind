@@ -189,6 +189,7 @@ button.chip { cursor: pointer; }
 .section + .section { border-top: 1px solid var(--rule-soft); }
 .section h2 { font-size: clamp(1.75rem, 3vw, 2.4rem); max-width: 22ch; }
 .section .intro { margin-top: 14px; color: var(--ink-2); font-size: 1.0625rem; max-width: 60ch; }
+#privacy h2, #privacy .intro { max-width: none; }
 
 .modes { margin-top: 44px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border-top: 2px solid var(--ink); }
 .mode { padding: 24px 28px 8px 0; }
