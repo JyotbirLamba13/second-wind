@@ -42,7 +42,7 @@ export function PacketButton({ report }: { report: CheckReport }) {
   return (
     <span style={{ display: "inline-grid", gap: 4 }}>
       <button className="btn sm" onClick={download} disabled={busy}>
-        {busy ? "Preparing packet…" : "Download prior-art packet (.docx)"}
+        {busy ? "Preparing report…" : "Download report for your patent attorney (.docx)"}
       </button>
       {err && <span className="small" style={{ color: "var(--red)" }}>{err}</span>}
     </span>
@@ -76,16 +76,16 @@ export function ReportView({ report: r }: { report: CheckReport }) {
           <p className="idea">“{r.idea}”</p>
           <div className="levels">
             <div>
-              <span>Novelty against closest prior art</span>
+              <span title="How new the idea looks against the closest earlier patents">Novelty</span>
               <Triage level={r.novelty_level} />
             </div>
             <div>
-              <span>Blocking risk from in-force patents</span>
+              <span title="How much patents still in force could block the idea">Blocking risk</span>
               <Triage level={r.blocking_level} />
             </div>
           </div>
         </div>
-        <div style={{ display: "grid", gap: 10, justifyItems: "end" }}>
+        <div className="verdict-actions">
           <PacketButton report={r} />
           {r.data_mode === "live" && (
             <Link className="small" to={`/app/expiry?q=${encodeURIComponent(r.idea)}`}>
@@ -98,7 +98,7 @@ export function ReportView({ report: r }: { report: CheckReport }) {
       <section className={`panel panel-pad handoff ${r.attorney_handoff ? "" : "calm"}`}>
         <h2 style={{ fontSize: "1.15rem" }}>{r.attorney_handoff ? "Talk to a patent attorney before going further" : "No blocking patent crossed the threshold"}</h2>
         <p className="muted" style={{ marginTop: 6 }}>
-          {r.attorney_handoff_reason} Bring the prior-art packet to that conversation.
+          {r.attorney_handoff_reason} Bring the report for your patent attorney to that conversation.
         </p>
         <ul className="small">
           <li>

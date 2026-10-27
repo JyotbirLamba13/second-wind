@@ -72,6 +72,7 @@ export function buildPacket(r: CheckReport, logo?: ArrayBuffer): Document {
       spacing: { after: 80 },
       children: [new TextRun({ text: "Prior-art packet", color: INK })],
     }),
+    p([new TextRun({ text: "A report for your patent attorney: the earlier patents closest to your idea, and what they claim.", color: MUTED })], { after: 80 }),
     p([new TextRun({ text: `Second Wind report ${r.id}, generated ${created}`, color: MUTED })], { after: 200 }),
     notice("First-pass research, not legal advice.", r.disclaimer, STAMP),
     ...(r.data_mode === "mock" ? [notice("Demo data.", r.data_note, LEVEL_COLOR.yellow)] : []),

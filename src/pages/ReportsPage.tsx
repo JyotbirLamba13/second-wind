@@ -12,7 +12,7 @@ export function ReportsPage() {
       <div className="page-head">
         <div>
           <h1>Saved reports</h1>
-          <p>Every idea check is saved in this browser, so you can reopen it, continue the conversation or download its packet.</p>
+          <p>Every idea check is saved in this browser, so you can reopen it, continue the conversation or download its report for your patent attorney.</p>
         </div>
         <Link to="/app/check" className="btn">
           Check a new idea

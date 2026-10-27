@@ -61,7 +61,7 @@ export function Legal() {
           <a href={USPTO_ROSTER} target="_blank" rel="noreferrer">USPTO practitioner roster</a>. If cost is a barrier, the{" "}
           <a href={USPTO_PRO_BONO} target="_blank" rel="noreferrer">Patent Pro Bono Program</a> and{" "}
           <a href={USPTO_CLINICS} target="_blank" rel="noreferrer">law school clinic program</a> connect eligible inventors with free help.
-          Bring your prior-art packet to that meeting.
+          Bring your report for your patent attorney to that meeting.
         </p>
       </main>
       <SiteFooter />

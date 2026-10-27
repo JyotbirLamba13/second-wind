@@ -20,7 +20,7 @@ const STEPS = [
   },
   {
     title: "Rate and hand off",
-    body: "You get green, yellow or red for novelty and for blocking risk, the riskiest assumption as a two-week test, and a packet for an attorney.",
+    body: "You get green, yellow or red for novelty and for blocking risk, the riskiest assumption as a two-week test, and a report to take to your patent attorney.",
   },
 ];
 
@@ -92,7 +92,7 @@ export function Landing() {
                   <li>Novelty and blocking-risk ratings</li>
                   <li>Possible blockers with the terms that overlap</li>
                   <li>Follow-up chat and design-change re-checks</li>
-                  <li>Downloadable prior-art packet</li>
+                  <li>Downloadable report for your patent attorney</li>
                 </ul>
                 <Link to="/app/check">Open idea check</Link>
               </div>
@@ -152,7 +152,7 @@ export function Landing() {
                 <p>Screen every cohort idea for obvious patent exposure before you commit mentoring hours or capital.</p>
                 <ul>
                   <li>The same method for every team</li>
-                  <li>Packets mentors can review in minutes</li>
+                  <li>Attorney-ready reports mentors can review in minutes</li>
                 </ul>
               </div>
               <div className="aud">
@@ -243,7 +243,7 @@ export function Landing() {
                 <ul>
                   <li>One industry search</li>
                   <li>A full report with blocking patents and prior art</li>
-                  <li>Prior-art packet to bring to an attorney</li>
+                  <li>A report to take to your patent attorney</li>
                 </ul>
                 <Link to="/app/check" className="btn ghost">
                   Check an idea
