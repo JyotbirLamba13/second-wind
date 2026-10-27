@@ -1,40 +1,73 @@
 # Second Wind
 
-Built on the open [bistvinayak/second-life](https://github.com/bistvinayak/second-life) backend (originally named Second Life), which this repo merges in automatically.
+First-pass patent research for founders, inventors and the programs that back them. Describe a product idea in plain words and Second Wind shows how new it looks, which in-force patents could block it, and which expired patents are open to build on, then hands you a report to take to a patent attorney.
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/bistvinayak/second-life)
+**Live demo:** https://second-wind-patents.vercel.app
 
-## Try the demo
+> **Not legal advice.** Second Wind is automated first-layer research over a limited corpus. It never says whether an idea is patentable, whether a product infringes, or whether there is freedom to operate. Every report says so and points to a registered patent attorney.
+
+Built on the open [bistvinayak/second-life](https://github.com/bistvinayak/second-life) backend (originally named Second Life), which this repo merges in automatically every 30 minutes (`.github/workflows/sync-upstream.yml`).
+
+## What it does
+
+| Feature | What you get |
+|---|---|
+| **Idea check** | Chat in plain words. Get green, yellow or red for novelty and for blocking risk, possible blocking patents with the claim elements your idea avoids, the closest prior art, and the riskiest assumption written as a two-week test. Ask follow-ups or describe a design change and it re-checks. Every finding links to the patent and claim it came from. |
+| **Report for your patent attorney** | A Word file (.docx), titled "Prior-art packet" as attorneys expect, with the result, findings, blocking patents, prior art and links to the USPTO practitioner roster, pro bono program and law-school clinics. |
+| **Patent expiry** | One search box for patents expiring soon or recently expired around your idea, or a lookup by patent number. |
+| **Opportunity scout** | Expired patents ranked 0–100 by how promising they are to build on, with reasons and the similar in-force patents to check first. |
+| **Research workspace** | Patent search with four ranking methods side by side, full patent records with claims, and a profile of what the corpus covers. |
+| **AI switch** | AI reads ideas and answers follow-ups, checked by deterministic guardrails (below). Switch it off in the workspace and nothing is sent to a model. |
+
+The live corpus is 5,444 real US utility patents in CPC A47J31 (coffee and beverage makers) from Google Patents Public Data (CC BY 4.0). Ideas from other industries run on clearly labeled mock patents so the workflow can be shown; those results must never be relied on.
+
+## Run it locally
+
+Needs Python 3.9+ and Node 20+.
 
 ```bash
-git clone https://github.com/bistvinayak/second-life && cd second-life
+git clone https://github.com/JyotbirLamba13/second-wind && cd second-wind
+python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-uvicorn app.main:app          # open http://localhost:8000
+npm install
+uvicorn app.main:app --port 8000   # API, docs at http://localhost:8000/docs
+npm run dev                        # web app at http://localhost:5173 (proxies /api to :8000)
 ```
 
-It opens a chat. Describe a product idea and get a patent triage report, then ask follow-up questions or describe a design change and it re-checks.
-
-- **Live example (real data):** coffee and beverage makers, CPC `A47J31`, 5,444 real US utility patents from Google Patents Public Data (`data/coffee_a47j31.jsonl.gz`). Try the cold brew or barcode pod examples.
-- **Everything else (mock data):** for an idea outside that industry, the LLM invents a small set of fictional patents on the spot, so you can see the whole product. The report says so in a banner, mock patents are marked `mock` and carry no links. Never rely on those results. The first idea in a new industry takes up to a minute while the mock set is generated, then it is cached.
-- **CPC** (Cooperative Patent Classification) is the category code every patent carries, e.g. `A47J31/44` is beverage-making apparatus. The LLM guesses the codes for your idea, and the backend compares them with what the live dataset covers.
-
-**API key:** the LLM features (idea understanding, mock data for other industries, chat follow-ups) need an OpenRouter key. Copy `.env.example` to `.env` and set `OPENROUTER_API_KEY` (free models only are used by default). On Render, add it as an environment variable. Without a key the app still runs, with weaker idea understanding and no mock data. The app limits each visitor to 12 checks per 10 minutes so a shared key is not drained.
-
-**Deploy a public link:** click the Render button above (free plan, Docker), or `docker build -t second-wind . && docker run -p 8000:8000 second-wind`. Free Render instances sleep when idle and lose saved reports on restart.
-
-Real patent data is from Google Patents Public Data (https://console.cloud.google.com/marketplace/product/google_patents_public_datasets/google-patents-public-data), licensed CC BY 4.0, via BigQuery.
-
-## Web app (Vercel)
-
-`src/` holds a React + Vite frontend: a marketing site and a workspace with Idea check (chat + report), Opportunity scout, and a research mode (patent search with method comparison, corpus browser, patent records, corpus profile, retrieval benchmark) plus saved reports. Every screen states that results are research triage, not legal advice, and the workspace asks for an acknowledgement before first use.
+Checks:
 
 ```bash
-npm install
-uvicorn app.main:app --port 8000   # API
-npm run dev                        # http://localhost:5173, proxies /api to :8000
+pytest -q          # 35 backend tests, including adversarial guardrail tests
+npm run build      # type-checks and builds the web app
 ```
 
-On Vercel the same repo deploys both halves: `api/index.py` serves the FastAPI app as a Python function at `/api/*`, and the Vite build is served statically (`vercel.json`). Set `OPENROUTER_API_KEY` (or `ANTHROPIC_API_KEY`) in the Vercel project's environment variables. Serverless instances don't share disk, so the frontend keeps each report and sends it back with chat follow-ups (`report` in `/v1/chat`) and packet exports (`POST /v1/packet`). Saved reports live in the visitor's browser.
+AI is optional. Copy `.env.example` to `.env` and set `OPENROUTER_API_KEY` to turn it on. Without a key everything runs on Second Wind's own search and scoring, with weaker idea reading and no mock data for other industries.
+
+## Data and privacy
+
+- **No accounts.** Saved reports live in the visitor's browser. The server keeps a temporary working copy (SQLite in `/tmp` on Vercel) that is cleared when the instance restarts.
+- **AI off means no model.** With the workspace switch off, `/v1/chat` gets `use_llm: false` and neither the check nor the follow-ups call a model (covered by `test_ai_off_keeps_every_turn_away_from_the_model`).
+- **AI on: idea text goes to OpenRouter.** The default models are OpenRouter free models (`OPENROUTER_MODELS`). **Providers of free models may log prompts or use them for training**, so the site tells visitors to switch AI off for confidential ideas. OpenRouter can restrict routing to providers that don't collect data (`provider.data_collection: "deny"`), but some free models may then be unavailable; it is not enabled yet and should be before any real customer use, along with a paid model whose provider doesn't train on inputs.
+- **Rate limit.** Each visitor gets 12 checks per 10 minutes (`RATE_LIMIT_PER_10MIN`) so a shared key isn't drained.
+- **Keys** live in environment variables only, never in the repo.
+
+## Repo layout
+
+| Path | What it is |
+|---|---|
+| `app/` | FastAPI backend: retrieval, check, scout, chat and the AI guardrails (`app/agents/guard.py`) |
+| `api/index.py` | Vercel entry point that serves the FastAPI app at `/api/*` |
+| `src/` | React + Vite web app: marketing site and workspace |
+| `tests/` | Backend tests |
+| `data/` | Live corpus (`coffee_a47j31.jsonl.gz`) and the synthetic sample |
+| `scripts/` | Data loading (BigQuery), validation and the retrieval benchmark |
+| `ui/index.html` | The upstream no-build UI, still served by the backend at `/` |
+
+## Deploy
+
+On Vercel the repo deploys both halves: `api/index.py` runs the API as a Python function at `/api/*`, and the Vite build is served statically (`vercel.json`). Set `OPENROUTER_API_KEY` (or `ANTHROPIC_API_KEY`) in the project's environment variables. Serverless instances don't share disk, so the web app sends each report back with chat follow-ups (`report` in `/v1/chat`) and exports (`POST /v1/packet`).
+
+The API alone also runs in Docker: `docker build -t second-wind . && docker run -p 8000:8000 second-wind`.
 
 ## Backend
 
@@ -42,39 +75,26 @@ REST API for an AI patent research assistant for student and first-time founders
 
 Two modes share one retrieval core:
 
-- **Scout**: ranks lapsed and expired US consumer-hardware patents by second-wind potential, with reasons.
+- **Scout**: ranks lapsed and expired US patents by second-wind potential, with reasons.
 - **Check**: takes a founder's idea and returns a green/yellow/red novelty and blocking-patent triage, the closest prior art, the single riskiest assumption written as a two-week test, and a downloadable prior-art packet. Every statement carries a link to its source patent.
 
-## UI
-
-A no-build web UI lives in `ui/index.html` and is served by the backend, so one process gives you the whole app: run `uvicorn app.main:app` and open http://localhost:8000. It has a **Check my idea** tab (triage badge, how the AI read the idea, blockers, prior art, riskiest assumption, packet download) and a **Scout opportunities** tab. Everything calls the same `/v1/*` API, so the UI can be swapped for any framework without backend changes. If `data/patents.jsonl` exists the server uses it, otherwise it falls back to the synthetic sample.
-
-## Quick start
-
-```bash
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload      # http://localhost:8000/docs
-pytest -q
-python -m scripts.benchmark        # recall@k vs examiner-cited art
-```
-
-Or `docker build -t second-wind . && docker run -p 8000:8000 second-wind`.
-
-Interactive docs and the OpenAPI schema (`/openapi.json`) are generated, so the UI team can build typed clients from them. CORS is open by default; restrict it with `CORS_ORIGINS`.
+Interactive docs and the OpenAPI schema (`/openapi.json`) are generated. CORS is open by default; restrict it with `CORS_ORIGINS`.
 
 ## Endpoints
 
 | Method | Path | Purpose |
 |---|---|---|
-| GET | `/health`, `/v1/stats` | Liveness, corpus counts by legal status |
-| GET | `/v1/patents` | List/filter by `status`, `cpc` prefix, paging |
+| GET | `/health`, `/v1/stats` | Liveness, corpus counts by legal status and the live domain |
+| GET | `/v1/corpus/profile` | Filings by year, top CPC groups and assignees, next patents to expire |
+| GET | `/v1/patents` | List/filter by `status`, `cpc` prefix, `expires_after`/`expires_before`, `sort=expiry` or `-expiry`, paging |
 | GET | `/v1/patents/{id}` | Full record with claims |
 | POST | `/v1/search` | `bm25`, `embedding`, `cpc` or `hybrid` search, optional status filter |
 | POST | `/v1/scout` | Ranked lapsed/expired opportunities (`cpc_prefixes`, `limit`, `statuses`) |
 | POST | `/v1/check` | Run triage on `{ "idea": "..." }`; returns and stores a report |
+| POST | `/v1/chat` | Conversational check: first message runs a check, later ones answer or re-check (`use_llm: false` keeps it off the model) |
 | GET | `/v1/reports`, `/v1/reports/{id}` | Stored reports |
 | GET | `/v1/reports/{id}/packet` | Prior-art packet as Markdown for an IP clinic |
+| POST | `/v1/packet` | The same packet, built from a report the client sends |
 | POST | `/v1/benchmark/run` | Recall@k for all methods vs examiner citations |
 
 Example:
@@ -127,4 +147,7 @@ The benchmark file format is JSONL rows `{"id", "text", "cpc", "examiner_cited":
 
 - Lexical and hashed-embedding retrieval handles lay wording only through a small synonym map. Swap in a neural embedder (same `fit`/`encode` interface in `HashEmbedder`) for production.
 - Reports are stored in SQLite and there are no user accounts or billing, matching v1 scope.
+- Legal status is estimated from the 20-year term: maintenance-fee data, term adjustments and extensions aren't loaded, so some "in force" patents may have lapsed.
+- One CPC class is live; other industries use labeled mock data.
+- AI runs on free OpenRouter models whose providers may log prompts (see Data and privacy).
 - Not legal advice. Reports say so and recommend an attorney when an in-force patent overlaps.
