@@ -109,8 +109,8 @@ def run_check(req: CheckRequest, store: PatentStore, settings: Settings, llm: LL
     free = [a for a in prior_art if a.patent.status != "in_force" and a.claim_coverage >= settings.novelty_yellow]
     for a in free[:2]:
         claims.append(ReportClaim(
-            text=f"{a.patent.id} is {a.patent.status.replace('_', ' ')}, so its claimed technology is free to use, "
-                 f"but it also counts against novelty of the same features.",
+            text=f"{a.patent.id} is {a.patent.status.replace('_', ' ')}, so its own claims no longer block anyone, though in-force patents may still cover "
+                 f"the same design; it also counts against novelty of the same features.",
             citations=[_cite(store, a.patent.id)]))
 
     assumption = _assumption(req, store, blockers, prior_art, novelty, llm if req.use_llm else None)

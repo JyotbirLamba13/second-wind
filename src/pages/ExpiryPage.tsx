@@ -195,7 +195,7 @@ export function ExpiryPage() {
         <div>
           <h1>Patent expiry</h1>
           <p>
-            When a patent's term ends, anyone can build what it claims. Describe your idea to see related patents expiring soon or recently
+            When a patent's term ends, its claims are open to build on, as long as no in-force patent still covers the design. Describe your idea to see related patents expiring soon or recently
             expired, or look up one patent's term.
           </p>
         </div>

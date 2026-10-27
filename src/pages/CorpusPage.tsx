@@ -179,7 +179,7 @@ export function CorpusPage() {
           <section className="panel">
             <div className="panel-head">
               <h2>Next to leave patent term</h2>
-              <span className="faint small">Worth watching: these become free to build on soonest</span>
+              <span className="faint small">Worth watching: these claims open up soonest</span>
             </div>
             <div className="table-wrap">
               <table className="data">

@@ -49,7 +49,7 @@ export function Landing() {
               <h1>See which patents stand in your way before you build.</h1>
               <p className="lede">
                 Second Wind gives founders, inventors and the programs that back them a first-pass patent read in about a minute: how
-                novel an idea looks, which in-force patents could block it, and which expired ones are free to build on.
+                novel an idea looks, which in-force patents could block it, and which expired ones are open to build on, after checking in-force patents.
               </p>
               <div className="ctas">
                 <Link to="/app/check" className="btn">
@@ -205,7 +205,7 @@ export function Landing() {
                 </div>
                 <div className="fact">
                   <b>{expired.toLocaleString()}</b>
-                  <span>Expired and free to build on</span>
+                  <span>Expired</span>
                 </div>
               </div>
               <div className="muted" style={{ display: "grid", gap: 14 }}>
