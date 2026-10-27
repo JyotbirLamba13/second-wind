@@ -6,28 +6,11 @@ export const USPTO_PRO_BONO = "https://www.uspto.gov/patents/basics/using-legal-
 export const USPTO_CLINICS =
   "https://www.uspto.gov/learning-and-resources/ip-policy/public-information-about-practitioners/law-school-clinic-1";
 
-export function Mark({ size = 26 }: { size?: number }) {
-  // Claim brackets around three gusts of wind: a patent idea catching its second wind.
-  return (
-    <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
-      <rect x="1" y="1" width="30" height="30" rx="6" fill="var(--ink)" />
-      <path d="M9 8H6v16h3M23 8h3v16h-3" stroke="var(--paper)" strokeWidth="2" fill="none" strokeLinecap="round" />
-      <path
-        d="M10 13h8.5a2.5 2.5 0 1 0-2.5-2.5M10 17h11a2.5 2.5 0 1 1-2.5 2.5M10 21h5"
-        stroke="var(--paper)"
-        strokeWidth="1.8"
-        fill="none"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
 export function Brand({ to = "/" }: { to?: string }) {
   return (
     <Link to={to} className="brand">
-      <Mark />
-      Second Wind
+      <img src="/logo.png" alt="Second Wind" width={619} height={108} className="logo-light" />
+      <img src="/logo-on-dark.png" alt="Second Wind" width={619} height={108} className="logo-dark" />
     </Link>
   );
 }

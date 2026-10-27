@@ -110,7 +110,9 @@ button.chip { cursor: pointer; }
 .site-nav { border-bottom: 1px solid var(--rule-soft); background: var(--paper); position: sticky; top: 0; z-index: 10; }
 .site-nav .wrap { display: flex; align-items: center; gap: 28px; height: 64px; }
 .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font-family: var(--serif); font-weight: 600; font-size: 1.2rem; }
-.brand svg { flex: none; }
+.brand img { display: block; height: 30px; width: auto; }
+.brand .logo-dark, .on-dark .brand .logo-light { display: none; }
+.on-dark .brand .logo-dark { display: block; }
 .site-nav nav { display: flex; gap: 22px; margin-left: 12px; }
 .site-nav nav a { color: var(--ink-2); text-decoration: none; font-size: 0.9375rem; }
 .site-nav nav a:hover { color: var(--ink); }
@@ -217,6 +219,11 @@ button.chip { cursor: pointer; }
 .plan.featured { border: 2px solid var(--stamp); }
 .plan h3 { font-size: 1.3rem; }
 .plan .price { font-family: var(--serif); font-size: 1.6rem; margin-top: 10px; }
+.plan .price span { font-family: var(--sans); font-size: 0.9375rem; color: var(--ink-3); }
+.tiers { margin-top: 28px; background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--r-md); padding: 22px 26px; }
+.tiers h3 { font-size: 1.1rem; margin-bottom: 8px; }
+.tiers p { margin-top: 12px; }
+.site-nav .btn { white-space: nowrap; }
 .plan .for { color: var(--ink-2); margin-top: 6px; font-size: 0.9375rem; }
 .plan ul { margin: 18px 0 22px; padding-left: 18px; color: var(--ink-2); font-size: 0.9375rem; flex: 1; }
 .plan li + li { margin-top: 6px; }
@@ -428,6 +435,8 @@ table.data .num { text-align: right; white-space: nowrap; }
   .kv dt { margin-top: 6px; }
   .hbar { grid-template-columns: 80px minmax(0, 1fr) 54px; }
   .legal-strip .wrap { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .site-nav .brand img { height: 24px; }
+  .tiers { padding: 18px 16px; }
 }
 @media (prefers-reduced-motion: reduce) { .side { transition: none; } }
 

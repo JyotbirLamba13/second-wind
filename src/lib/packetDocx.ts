@@ -1,7 +1,7 @@
 // Builds the prior-art packet as a Word document in the browser, from a report the client already holds.
 // Same sections as the server's Markdown packet (app/report.py), laid out for an attorney or IP clinic.
 import {
-  AlignmentType, BorderStyle, Document, ExternalHyperlink, HeadingLevel, Packer, Paragraph, ShadingType, Table, TableCell,
+  AlignmentType, BorderStyle, Document, ExternalHyperlink, HeadingLevel, ImageRun, Packer, Paragraph, ShadingType, Table, TableCell,
   TableRow, TextRun, WidthType,
 } from "docx";
 import type { CheckReport, Citation, PatentSummary } from "./api";
@@ -60,10 +60,13 @@ function notice(title: string, body: string, color: string) {
   });
 }
 
-export function buildPacket(r: CheckReport): Document {
+export function buildPacket(r: CheckReport, logo?: ArrayBuffer): Document {
   const created = new Date(r.created_at).toLocaleString("en-US", { dateStyle: "long", timeStyle: "short" });
   const ra = r.riskiest_assumption;
   const body = [
+    ...(logo
+      ? [new Paragraph({ spacing: { after: 240 }, children: [new ImageRun({ type: "png", data: logo, transformation: { width: 172, height: 30 } })] })]
+      : []),
     new Paragraph({
       heading: HeadingLevel.TITLE,
       spacing: { after: 80 },
@@ -175,7 +178,9 @@ export function buildPacket(r: CheckReport): Document {
 }
 
 export async function downloadPacket(r: CheckReport) {
-  const blob = await Packer.toBlob(buildPacket(r));
+  // The packet still downloads if the logo can't be fetched.
+  const logo = await fetch("/logo.png").then((res) => (res.ok ? res.arrayBuffer() : undefined), () => undefined);
+  const blob = await Packer.toBlob(buildPacket(r, logo));
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;

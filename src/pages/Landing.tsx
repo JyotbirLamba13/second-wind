@@ -24,6 +24,12 @@ const STEPS = [
   },
 ];
 
+const LICENSE_TIERS = [
+  { name: "Starter", price: 3000, reports: 50, seats: 15 },
+  { name: "Standard", price: 7500, reports: 150, seats: 40 },
+  { name: "Large", price: 15000, reports: 500, seats: 100 },
+];
+
 export function Landing() {
   const [stats, setStats] = useState<Stats | null>(null);
   useEffect(() => {
@@ -150,8 +156,8 @@ export function Landing() {
                 </ul>
               </div>
               <div className="aud">
-                <h3>University IP clinics and tech transfer</h3>
-                <p className="who">Clinic supervisors, licensing officers</p>
+                <h3>Entrepreneurship centers and tech transfer</h3>
+                <p className="who">Center directors, licensing officers, IP clinic supervisors</p>
                 <p>Arrive at the first student consult with the closest prior art already gathered and cited.</p>
                 <ul>
                   <li>Claim-level overlap, not just keyword hits</li>
@@ -223,49 +229,88 @@ export function Landing() {
         <section className="section" id="plans">
           <div className="wrap">
             <h2>Plans</h2>
-            <p className="intro">This is a demo build. Items marked planned are on the roadmap and not in the product yet.</p>
+            <p className="intro">
+              The institution pays and its founders use Second Wind free. A professional patent search costs $500 to $1,000; a Second Wind
+              report costs an institution $30 to $60.
+            </p>
             <div className="plans">
               <div className="plan">
-                <h3>Founder</h3>
-                <div className="price">Free</div>
-                <p className="for">For one founder testing ideas</p>
+                <h3>Pay per report</h3>
+                <div className="price">
+                  $79 <span>a report</span>
+                </div>
+                <p className="for">For independent founders</p>
                 <ul>
-                  <li>Idea checks and follow-up chat</li>
-                  <li>Prior-art packet download</li>
-                  <li>Research workspace</li>
+                  <li>One industry search</li>
+                  <li>A full report with blocking patents and prior art</li>
+                  <li>Prior-art packet to bring to an attorney</li>
                 </ul>
                 <Link to="/app/check" className="btn ghost">
-                  Start checking ideas
+                  Check an idea
+                </Link>
+              </div>
+              <div className="plan">
+                <h3>Small startup</h3>
+                <div className="price">
+                  $49 <span>a month</span>
+                </div>
+                <p className="for">For small startups and small manufacturers</p>
+                <ul>
+                  <li>3 reports a month</li>
+                  <li>Saved searches (planned)</li>
+                  <li>Alerts when patents in your field lapse (planned)</li>
+                </ul>
+                <Link to="/app/expiry" className="btn ghost">
+                  See expiring patents
                 </Link>
               </div>
               <div className="plan featured">
-                <h3>Program</h3>
-                <div className="price">Per cohort</div>
-                <p className="for">For accelerators and incubators</p>
+                <h3>Institutional license</h3>
+                <div className="price">
+                  From $3,000 <span>a year</span>
+                </div>
+                <p className="for">For entrepreneurship centers, tech-transfer offices and accelerators</p>
                 <ul>
-                  <li>Everything in Founder</li>
-                  <li>Opportunity scout across your sectors</li>
-                  <li>Shared cohort workspace (planned)</li>
-                  <li>Mentor review queue (planned)</li>
+                  <li>Priced by report volume, not budget</li>
+                  <li>Founders at the institution use it free</li>
+                  <li>Admin dashboard (planned)</li>
                 </ul>
-                <Link to="/app/scout" className="btn">
-                  Try scout
-                </Link>
+                <a href="#license-tiers" className="btn">
+                  Compare license tiers
+                </a>
               </div>
-              <div className="plan">
-                <h3>Institution</h3>
-                <div className="price">Custom</div>
-                <p className="for">For IP clinics and tech transfer offices</p>
-                <ul>
-                  <li>Corpora loaded for your CPC classes</li>
-                  <li>Search quality measured on your own cases (planned)</li>
-                  <li>Attorney handoff workflow (planned)</li>
-                  <li>Single sign-on (planned)</li>
-                </ul>
-                <Link to="/app/research/corpus" className="btn ghost">
-                  See the corpus profile
-                </Link>
+            </div>
+
+            <div className="tiers" id="license-tiers">
+              <h3>Institutional license tiers</h3>
+              <div className="table-wrap">
+                <table className="data">
+                  <thead>
+                    <tr>
+                      <th>Tier</th>
+                      <th className="num">Price a year</th>
+                      <th className="num">Reports</th>
+                      <th className="num">Seats</th>
+                      <th className="num">Cost per report</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {LICENSE_TIERS.map((t) => (
+                      <tr key={t.name}>
+                        <td>{t.name}</td>
+                        <td className="num">${t.price.toLocaleString()}</td>
+                        <td className="num">{t.reports}</td>
+                        <td className="num">{t.seats}</td>
+                        <td className="num">${t.price / t.reports}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
+              <p className="faint small">
+                Extra reports are $40 each. Extra seats come in packs of 10 for $250 a year. Proposed pricing for this demo build: nothing is
+                charged, and items marked planned aren't in the product yet.
+              </p>
             </div>
           </div>
         </section>
